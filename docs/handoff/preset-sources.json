@@ -1,0 +1,74 @@
+{
+  "checked_on": "2026-10-01",
+  "purpose": "首批厂商来源事实，不限定代码数据结构，也不是完整预设库。null表示资料未提供，不代表0。保留原指标后，按Figma模型00判断能否作为计算输入。",
+  "records": [
+    {
+      "id": "kingston-sdcit2-128gb",
+      "manufacturer": "Kingston",
+      "series": "SDCIT2",
+      "capacity_gb": 128,
+      "category": "industrial",
+      "published_metrics": [
+        {
+          "type": "manufacturer_TBW",
+          "value": 3840,
+          "unit": "TB",
+          "qualifier": "up to",
+          "capacity_scope": "厂商脚注限定最高容量；该页面当前列出的最高容量为128GB"
+        },
+        {
+          "type": "PE_cycles",
+          "value": 30000,
+          "unit": "cycles",
+          "scope": "系列公开规格；不据此倒推有效循环容量或WAF"
+        }
+      ],
+      "nand_mode": "TLC in pSLC mode",
+      "source_url": "https://www.kingston.com/en/memory-cards/industrial-grade-microsd-uhs-i-u3",
+      "source_locator": "Specifications / Endurance；footnote 2",
+      "figma_source_id": "S07",
+      "limitations": [
+        "TBW基于厂商内部指标；不能分摊给其他容量。",
+        "引用页面未详述Host/NAND计数口径及工作负载，不能标为全面工况已验证。"
+      ],
+      "missing": {
+        "waf_past": null,
+        "waf_future": null,
+        "effective_cycle_capacity_gb": null,
+        "qualification_workload": null,
+        "applicable_firmware": null
+      },
+      "model_A_use": "先核对主机侧计数口径；未确认时不可冒充已验证主机额定值，仅可在用户明确采用后作为有来源的假设情景。"
+    },
+    {
+      "id": "samsung-pro-endurance-2022-128gb",
+      "manufacturer": "Samsung",
+      "series": "PRO Endurance",
+      "generation": 2022,
+      "capacity_gb": 128,
+      "category": "high_endurance",
+      "published_metrics": [
+        {
+          "type": "video_recording_endurance",
+          "value": 70080,
+          "unit": "hours",
+          "qualifier": "up to",
+          "workload": {
+            "resolution": "1920x1080",
+            "bitrate_mbps": 26
+          }
+        }
+      ],
+      "source_url": "https://news.samsung.com/global/samsung-unveils-new-pro-endurance-memory-card-optimized-for-surveillance-and-dashboard-cameras",
+      "source_locator": "2022-05-03；Specifications表128GB列；footnotes 1 and 10",
+      "figma_source_id": "S08",
+      "missing": {
+        "manufacturer_host_tbw_tb": null,
+        "pe_cycles": null,
+        "waf_past": null,
+        "waf_future": null
+      },
+      "model_A_use": "该记录为录像时长指标，不直接自动填成主机TBW；可显示已知规格及来源，TBW不足时明确缺项。"
+    }
+  ]
+}
