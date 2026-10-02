@@ -6,14 +6,14 @@ export function blankAdvanced() {
 }
 
 export function blankInput(mode) {
-  const shared = { q: '', qUnit: 'GB', category: 'custom', presetId: '', presetAdopted: false, presetModified: false }
+  const shared = { q: '', qUnit: 'GB', category: 'custom', brandFilter: '', capacityFilter: '', cardName: '', nominalCapacity: '', presetId: '', presetAdopted: false, presetModified: false, budgetNeedsConfirmation: false }
   if (mode === 'B') return { ...shared, C: '', cUnit: 'GB', PE: '', consumption: '', N: '', nUnit: 'TB', H: '', hUnit: 'TB', wafPast: '', wafFuture: '', referenceOpen: false }
   if (mode === 'D') return { ...shared, Y: '', E: '', eUnit: 'TB', history: 'new', H: '', hUnit: 'TB', candidateOpen: false }
   return { ...shared, E: '', eUnit: 'TB', history: '', H: '', hUnit: 'TB' }
 }
 
 export function signature(input, advanced) {
-  const { candidateOpen: _candidateOpen, referenceOpen: _referenceOpen, ...parameters } = input
+  const { candidateOpen: _candidateOpen, referenceOpen: _referenceOpen, category: _category, brandFilter: _brandFilter, capacityFilter: _capacityFilter, ...parameters } = input
   return JSON.stringify([parameters, advanced])
 }
 
@@ -70,9 +70,11 @@ export function calculate(mode, input) {
     return converted
   }
   const qTB = units('q', 'qUnit')
+  if (String(input.nominalCapacity ?? '').trim()) number('nominalCapacity', true)
   let E, H = null, C, PE, N = null, wafFuture, wafPast, Y
   if (mode === 'A' || (mode === 'D' && String(input.E).trim())) {
     E = units('E', 'eUnit', true)
+    if (input.budgetNeedsConfirmation && !input.presetAdopted && !input.presetModified) errors.presetAdopted = '请确认将厂商 TBW 作为本次主机预算假设，或修改预算为自己的假设。'
     if (!['new', 'used', 'unknown'].includes(input.history)) errors.history = '请选择全新卡、历史完整或历史未知。'
     if (input.history === 'new') H = 0
     if (input.history === 'used') H = units('H', 'hUnit')
@@ -93,9 +95,10 @@ export function calculate(mode, input) {
   if (Object.keys(errors).length) return { errors }
   try {
     const qGB = finite(qTB * 1000, 'q', qTB > 0)
-    const result = { mode, qTB, qGB, E, H, C, PE, N, wafFuture, wafPast, Y, days: null, years: null, remaining: null, margin: null, available: null, usedRatio: null, status: 'assumption' }
+    const annualHostWrites = finite(qTB * 365, 'q', qTB > 0)
+    const result = { mode, qTB, qGB, annualHostWrites, E, H, C, PE, N, wafFuture, wafPast, Y, days: null, years: null, remaining: null, margin: null, available: null, usedRatio: null, status: 'assumption' }
     if (mode === 'D') {
-      result.required = finite(finite(qTB * 365, 'q', qTB > 0) * Y, 'Y', qTB > 0)
+      result.required = finite(annualHostWrites * Y, 'Y', qTB > 0)
       if (E !== undefined && H !== null) {
         result.available = Math.max(E - H, 0)
         result.margin = finite(result.available - result.required, 'E')

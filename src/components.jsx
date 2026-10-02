@@ -18,7 +18,7 @@ export function Field({ name, label, value, onChange, unit, unitValue, onUnitCha
         {helpKey ? <button type="button" className="info-button" aria-label={`帮助：${label}`} aria-haspopup="dialog" onClick={event => onHelp(helpKey, event.currentTarget)}><img src={helpIcon} alt="" /></button> : null}
       </div>
       <div className={`input-shell ${error ? 'invalid' : ''} ${disabled ? 'disabled' : ''}`}>
-        <Tag id={id} name={name} value={value} onChange={event => onChange(event.target.value)} placeholder={placeholder} disabled={disabled} inputMode={['E', 'H', 'q', 'Y', 'C', 'PE', 'N', 'wafPast', 'wafFuture'].includes(name) ? 'decimal' : undefined} autoComplete="off" aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} rows={multiline ? 3 : undefined} />
+        <Tag id={id} name={name} value={value} onChange={event => onChange(event.target.value)} placeholder={placeholder} disabled={disabled} inputMode={['E', 'H', 'q', 'Y', 'C', 'PE', 'N', 'wafPast', 'wafFuture', 'nominalCapacity'].includes(name) ? 'decimal' : undefined} autoComplete="off" aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} rows={multiline ? 3 : undefined} />
         {onUnitChange ? <select aria-label={`${label}单位`} value={unitValue} onChange={event => onUnitChange(event.target.value)} disabled={disabled}>{['GB', 'TB', 'GiB', 'TiB'].map(u => <option key={u} value={u}>{u}{name === 'q' ? '/天' : ''}</option>)}</select> : unit ? <span className="input-unit">{unit}</span> : null}
       </div>
       {error ? <p id={`${id}-error`} className="field-error">{error}</p> : null}
@@ -73,7 +73,7 @@ export function Modal({ title, onClose, children, footer, labelId = 'modal-title
     if (event.target !== event.currentTarget) return
     const rect = event.currentTarget.getBoundingClientRect()
     if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) onClose()
-  }}><div className="modal-header"><h2 id={labelId}>{title}</h2><button type="button" className="close-button" aria-label="关闭弹窗" onClick={onClose}>×</button></div><div className="modal-body">{children}</div><div className="modal-footer">{footer}</div></dialog>, document.body)
+  }}><div className="modal-header"><h2 id={labelId}>{title}</h2><button type="button" className="close-button" aria-label="关闭弹窗" onClick={onClose}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M6 18L18 6" /></svg></button></div><div className="modal-body">{children}</div><div className="modal-footer">{footer}</div></dialog>, document.body)
 }
 
 export function AdvancedModal({ initial, sourceSummary, onClose, onSave }) {
@@ -116,7 +116,7 @@ export function HistoryModal({ initial, onClose, onSave }) {
   </Modal>
 }
 
-export function SnapshotRecords({ advanced, preset, modified }) {
+export function SnapshotRecords({ advanced, preset, modified, mode }) {
   const records = Object.entries({ '参数来源': { assumption: '用户假设', manufacturer: '厂商资料（保留来源限定）', measurement: '测量记录' }[advanced.sourceKind], '型号 / 容量': advanced.model, '版本 / 页码 / 固件': advanced.locator, '资料来源': advanced.source, '日均写入来源': advanced.workloadSource === 'measurement' ? '实测平均值' : '规划假设', '测量窗口': advanced.window, '负载工况': advanced.workload, '运行温度': advanced.operating, '断电保存温度': advanced.storage, '断电保持时间': advanced.retention, '条件核对': { unverified: '条件未验证', partial: '部分核对（用户记录）', recorded: '已自行核对（用户记录，非厂商认证）' }[advanced.conditions] }).filter(([, value]) => value)
-  return <details className="records"><summary>来源与适用范围（本次快照）</summary><dl>{records.map(([key, value]) => <div key={key}><dt>{key}</dt><dd>{value}</dd></div>)}</dl>{preset ? <p>{preset.manufacturer} {preset.series} {preset.capacity_gb} GB · {modified ? '参数已手改，采用用户假设；' : ''}{preset.model_A_use}</p> : null}</details>
+  return <details className="records"><summary>来源与适用范围（本次快照）</summary><dl>{records.map(([key, value]) => <div key={key}><dt>{key}</dt><dd>{value}</dd></div>)}</dl>{preset ? <p>{preset.manufacturer} {preset.series} {preset.capacity_gb} GB · {modified ? '参数已手改，采用用户假设；' : ''}{preset.model_A_use}</p> : null}{mode === 'B' && preset ? <p>型号参考只提供已公开的 P/E；有效循环容量、WAF 和累计历史来自你填写的假设或测量记录，请核对适用性。</p> : null}</details>
 }

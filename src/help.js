@@ -3,7 +3,7 @@ export const help = {
   H: { title: '全寿命累计 Host Writes', body: '从首次使用以来的累计主机写入，与预算保持相同计数口径。操作系统重启后的计数可能不覆盖完整历史；历史未知不能当作 0。', section: 'parameters' },
   q: { title: '自然日日均写入', body: '完整自然日的主机写入平均值，包含停机与工作日安排。不是现有文件大小；已经包含占空比时，不再重复乘开机时长。', section: 'parameters' },
   C: { title: '有效循环容量', body: '对应同一 NAND 工作模式与循环池的有效容量基数。不是默认的卡面容量或 TLC 原始容量；需核对 pSLC、保留区与坏块口径。', section: 'pe' },
-  PE: { title: 'P/E 上限', body: '对应有效循环池、验证工况和 EOL / 保持要求的擦写次数。不能只凭消费卡、工业卡或 TLC 分类推定。', section: 'pe' },
+  PE: { title: 'P/E 上限', body: 'P/E（Program / Erase）是 NAND 的编程 / 擦除循环次数。工程估算用有效循环容量 × 次数近似总 NAND 磨损预算，再按 WAF 换算主机写入量。多数普通用户无需填写；有主机 TBW 用常用方式，只知道使用计划用选型需求。', section: 'pe' },
   N: { title: '全寿命 NAND 写入', body: '采用计数定义清晰的全寿命 NAND 写入量。编程字节不是擦除循环的精确替代品；本模型假设同一循环池与近似均匀磨损。', section: 'pe' },
   wafFuture: { title: '未来 WAF', body: '未来负载下 NAND 写入量 ÷ Host 写入量，应来自代表性窗口或明确假设。必须大于 0，不从卡片分类推定，也不能代替全历史 WAF。', section: 'pe' },
   wafPast: { title: '全历史 WAF', body: '覆盖同一完整历史区间的 NAND / Host 写入比，用于估算已消耗 NAND 量。与未来 WAF 独立，不自动相等。', section: 'pe' },

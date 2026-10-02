@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-01T16:35:26.264Z",
+  "generatedAt": "2026-10-02T10:44:25Z",
   "title": "Design System: SD 卡耐久分析",
   "extensions": {
     "colorMeta": {
@@ -377,32 +377,140 @@
       "extractedFrom": [
         {
           "path": "src/index.css",
-          "sha256": "04BD9B82F0F8AED41209704F485B87BE91F0177A1A821D46F583DB6A5CE19A22"
+          "sha256": "766AA741CEB2B40D8843829E7FB25B24F67EB6573ABCBF221A590D777C055819"
         },
         {
           "path": "src/App.jsx",
-          "sha256": "5D6F8AA76556F4A101C61C6E0299938190DD0ADA2F942EB14650C42ECD2E178B"
+          "sha256": "D1460EB9E6C39F6B89125B3FE35AF40D0D1FAE65196FF4FDB734ADF9EEEB899A"
+        },
+        {
+          "path": "src/PresetControls.jsx",
+          "sha256": "2CA7628201611820A5CF6C2B9235E63C9CC18C82C749E5EA27CFBD82A1016956"
         },
         {
           "path": "src/components.jsx",
-          "sha256": "A197E27B6AFF891F254E550D6BFA574BE7E91581352CF409BC47178BFF2FE758"
+          "sha256": "438635D6B84A120891EED36E46027825DB52107B073209E94E15A77EEFB09DF7"
         },
         {
           "path": "src/Analysis.jsx",
-          "sha256": "BC5B89D13A011FCC3EC2CF8EA53B6D49B422173AEA0164C721D12EA2D8D3FB95"
+          "sha256": "D68B07D880BBA96C63691CC2E0C27799F20478D6A81FA0233E796520DFFEE0FA"
         },
         {
           "path": "src/Theory.jsx",
-          "sha256": "38B2142321CFB8D9A7197AF4B6EC902EB516B410EB4E74A4DD5E61E48FE07498"
+          "sha256": "345A9C3C8F37E9F5409A0D717D11769E2C14D58D4D626375ABADAAE79103DF4A"
+        },
+        {
+          "path": "src/presets.js",
+          "sha256": "A005B94474D56F742B71AC19F6CADBE9673E97CD8AC3012E956F054095C17ED9"
         }
       ],
       "productContext": "PRODUCT.md",
       "finishReview": "docs/finish-review.md",
-      "reviewScope": "完整实现基线已复核；F01 刻度重叠已解决，最终 ship 判定限于该修复与图表回归。未在此文档 pass 重新操作浏览器。",
-      "assets": "src/assets/figma/README.md；帮助图标路径来自原始 Figma SVG。",
+      "reviewScope": "首版完整基线与 F01 图表修复见 docs/finish-review.md；v1.1 浏览器验收见 docs/acceptance-v1.1.md，最终 ship 判定限于 F01–F04 修复批次。本次文档 pass 未重新操作浏览器，未扩大为全域或部署认证。",
+      "assets": "src/assets/figma/README.md；帮助与披露图标保留原始 Figma SVG；components.jsx 的关闭图标为 20px 代码 SVG，置于 32px 按钮内。本次 shipping UI 未新增 raster。",
       "tonalRamps": "每个前置色令牌的 8 级合成 OKLCH 预览，保持源色 hue/chroma，lightness 15%→95%；用于面板预览，不是实现中的主题或新令牌。",
       "omittedDeclarations": "error-bg 在当前组件中未使用；不定义新的错误填充面板。",
-      "previewScope": "HTML/CSS 为实际组件样式的框架无关静态预览；没有复制 React 状态、计算值绑定或原生弹层的生命周期。"
+      "previewScope": "HTML/CSS 为实际组件样式的框架无关静态预览；没有复制 React 状态、计算值绑定或原生弹层的生命周期。",
+      "extensionReview": "docs/finish-review-v1.1.md",
+      "knownDrift": [
+        {
+          "selector": "::selection",
+          "value": "#cde7ff",
+          "classification": "pre-existing-color-documentation-advisory",
+          "disposition": "reported-not-repaired",
+          "reason": "本轮源码未改；未作为普通扩展新增前置颜色令牌或色阶。"
+        },
+        {
+          "selector": ".modal::backdrop",
+          "value": "rgb(0 0 0 / 28%)",
+          "classification": "pre-existing-color-documentation-advisory",
+          "disposition": "reported-not-repaired",
+          "reason": "本轮源码未改；保留既有深度与 nativeSurfaces 记录，不补入调色板或新增色阶。"
+        }
+      ]
+    },
+    "approvedExtension": {
+      "version": "1.1",
+      "classification": "ordinary-extension",
+      "authorization": ".impeccable/surface.md#v11-user-amendments",
+      "acceptance": "docs/acceptance-v1.1.md",
+      "foundations": "沿用指定 Figma 的浅色 Fluent 世界；颜色、字体字级、圆角、间距、断点与现有 tonalRamp 均保留。",
+      "primitivesChanged": false,
+      "tonalRampsChanged": false,
+      "componentPatterns": [
+        {
+          "name": "可选卡片身份",
+          "source": [
+            "src/PresetControls.jsx",
+            "src/App.jsx",
+            "src/components.jsx",
+            "src/index.css"
+          ],
+          "reuses": [
+            "field-input",
+            "field-unit"
+          ],
+          "behavior": "自定义的型号与标称容量使用已有 Field 和自动重排字段行，起始为空；可选身份进入成功快照的来源记录，不补作有效 NAND 循环池。"
+        },
+        {
+          "name": "常用 / 高级预算方式",
+          "source": [
+            "src/App.jsx",
+            "src/Theory.jsx",
+            "src/index.css"
+          ],
+          "reuses": [
+            "choice-button",
+            "choice-button-selected",
+            "typography.hint"
+          ],
+          "behavior": "目标下方同一按钮组选择主机 TBW（常用）或 P/E 工程估算（高级）；蓝色与 aria-pressed 表示选择，解释使用人群，保留各模式数据。"
+        },
+        {
+          "name": "可筛选的来源事实与参数采用",
+          "source": [
+            "src/PresetControls.jsx",
+            "src/presets.js",
+            "src/App.jsx",
+            "src/index.css"
+          ],
+          "reuses": [
+            "field-input",
+            "colors.info-bg",
+            "rounded.control",
+            "typography.compact-control"
+          ],
+          "behavior": "分类、品牌与容量筛选不更换当前卡；公开参数自动填写，尚缺输入动态列出；计数口径不明的 TBW 用复选框显式采用为假设。B 只填写公开 P/E，保留用户写入的 C 与两种 WAF，说明其适用性需核对；空值保持为空。"
+        },
+        {
+          "name": "未知历史的已知事实与恢复",
+          "source": [
+            "src/Analysis.jsx",
+            "src/App.jsx",
+            "src/components.jsx",
+            "src/index.css"
+          ],
+          "reuses": [
+            "result-card",
+            "panel",
+            "button-secondary",
+            "button-primary",
+            "semantic-notice"
+          ],
+          "behavior": "成功快照保留总预算和年度未来写入需求，未知剩余量与时间不生成；恢复路径为补充完整历史或带入成功快照负载算选型。修改输入后保留快照提示并禁用恢复动作，直到重新计算。"
+        }
+      ],
+      "fixBatch": {
+        "review": "docs/finish-review-v1.1.md",
+        "disposition": "ship",
+        "scope": "F01–F04 修复批次",
+        "recordedBehavior": [
+          "B 型号参考保留已写入的有效循环容量与历史 / 未来 WAF，并标明这些用户假设需核对适用性；空字段保持为空。",
+          "移除误导性的容量增减方向说明。",
+          "预算百分数与剩余词组使用 word-break: keep-all，保留原有字号与重排。",
+          "关闭按钮使用代码 SVG；来源链接不再附加字体箭头，仍保留新窗口的可读名称。"
+        ]
+      }
     }
   },
   "components": [
@@ -430,20 +538,20 @@
       "css": ".ds-text-button{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;color:var(--primary,#0067c0);background:transparent;border:0;padding:4px 0;min-height:28px;font-size:.8125rem;line-height:1.5;cursor:pointer;transition:background-color 150ms ease-out,border-color 150ms ease-out;}.ds-text-button:hover{text-decoration:underline;text-underline-offset:3px;}.ds-text-button:focus-visible{outline:2px solid var(--primary,#0067c0);outline-offset:3px;}@media(prefers-reduced-motion:reduce){.ds-text-button{transition:none!important;animation:none!important;scroll-behavior:auto!important;}}"
     },
     {
-      "name": "目标选择",
+      "name": "目标与计算方式",
       "kind": "custom",
       "refersTo": "choice-button",
-      "description": "蓝色填充与 aria-pressed 同时标识当前目标。",
-      "html": "<div class=\"ds-choice-buttons\" role=\"group\" aria-label=\"计算目标\"><button type=\"button\" aria-pressed=\"true\" class=\"ds-choice-selected\">写入预算</button><button type=\"button\" aria-pressed=\"false\">选型需求</button></div>",
-      "css": ".ds-choice-buttons{display:flex;flex-wrap:wrap;gap:8px;}.ds-choice-buttons button{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;font-size:.75rem;line-height:1.4;padding:7px 14px;min-height:32px;border:1px solid var(--border,#d2d2d2);border-radius:var(--radius-control,4px);background:var(--surface,#fff);color:var(--text,#1b1b1b);text-align:center;cursor:pointer;transition:background-color 150ms ease-out,border-color 150ms ease-out;}.ds-choice-buttons button:hover{background:var(--subtle,#f3f3f3);border-color:#8a8a8a;}.ds-choice-buttons .ds-choice-selected{background:var(--primary,#0067c0);border-color:var(--primary,#0067c0);color:var(--surface,#fff);}.ds-choice-buttons .ds-choice-selected:hover{background:var(--primary-hover,#005aa8);border-color:var(--primary-hover,#005aa8);}.ds-choice-buttons button:focus-visible{outline:2px solid var(--primary,#0067c0);outline-offset:3px;}@media(prefers-reduced-motion:reduce){.ds-choice-buttons button{transition:none!important;animation:none!important;scroll-behavior:auto!important;}}"
+      "description": "目标与常用 / 高级方式共享已有选择控件；蓝色填充与 aria-pressed 同时标识当前项。",
+      "html": "<div class=\"ds-choice-stack\"><section class=\"ds-choice-section\"><h2>计算目标</h2><div class=\"ds-choice-buttons\" role=\"group\" aria-label=\"计算目标\"><button type=\"button\" aria-pressed=\"true\" class=\"ds-choice-selected\">写入预算</button><button type=\"button\" aria-pressed=\"false\">选型需求</button></div></section><section class=\"ds-choice-section\"><h2>计算方式</h2><div class=\"ds-choice-buttons\" role=\"group\" aria-label=\"预算方法\"><button type=\"button\" aria-pressed=\"true\" class=\"ds-choice-selected\">主机 TBW（常用）</button><button type=\"button\" aria-pressed=\"false\">P/E 工程估算（高级）</button></div><p class=\"ds-choice-hint\">已有主机 TBW 用此方式；只知道使用计划，可以计算选型需求。</p></section></div>",
+      "css": ".ds-choice-buttons{display:flex;flex-wrap:wrap;gap:8px;}.ds-choice-buttons button{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;font-size:.75rem;line-height:1.4;padding:7px 14px;min-height:32px;border:1px solid var(--border,#d2d2d2);border-radius:var(--radius-control,4px);background:var(--surface,#fff);color:var(--text,#1b1b1b);text-align:center;cursor:pointer;transition:background-color 150ms ease-out,border-color 150ms ease-out;}.ds-choice-buttons button:hover{background:var(--subtle,#f3f3f3);border-color:#8a8a8a;}.ds-choice-buttons .ds-choice-selected{background:var(--primary,#0067c0);border-color:var(--primary,#0067c0);color:var(--surface,#fff);}.ds-choice-buttons .ds-choice-selected:hover{background:var(--primary-hover,#005aa8);border-color:var(--primary-hover,#005aa8);}.ds-choice-buttons button:focus-visible{outline:2px solid var(--primary,#0067c0);outline-offset:3px;}@media(prefers-reduced-motion:reduce){.ds-choice-buttons button{transition:none!important;animation:none!important;scroll-behavior:auto!important;}}.ds-choice-stack{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;display:grid;gap:16px;}.ds-choice-section{display:grid;gap:10px;}.ds-choice-section h2{margin:0;font-size:1rem;font-weight:700;line-height:1.5;}.ds-choice-hint{margin:0;color:var(--text-secondary,#5d5d5d);font-size:.6875rem;line-height:1.5;overflow-wrap:anywhere;}"
     },
     {
-      "name": "带单位输入",
+      "name": "带单位输入与可选身份",
       "kind": "input",
       "refersTo": "field-input",
-      "description": "真实文本输入与原生单位选择共享一个外壳；错误就近显示。",
-      "html": "<div class=\"ds-field\"><label for=\"ds-q-input\">日均写入</label><div class=\"ds-input-shell\"><input id=\"ds-q-input\" name=\"q\" inputmode=\"decimal\" autocomplete=\"off\" placeholder=\"例如 35\"><select aria-label=\"日均写入单位\"><option>GB/天</option><option>TB/天</option><option>GiB/天</option><option>TiB/天</option></select></div></div>",
-      "css": ".ds-field{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;display:grid;align-content:start;gap:6px;min-width:0;}.ds-field>label{font-size:.75rem;font-weight:500;color:var(--text-secondary,#5d5d5d);line-height:1.45;}.ds-input-shell{display:flex;align-items:stretch;width:100%;min-height:38px;border:1px solid var(--border,#d2d2d2);border-radius:var(--radius-control,4px);background:var(--surface,#fff);}.ds-input-shell:hover{border-color:#8a8a8a;}.ds-input-shell:focus-within{border-color:var(--primary,#0067c0);}.ds-input-shell input{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;min-width:0;width:100%;padding:8px;border:0;background:transparent;color:var(--text,#1b1b1b);border-radius:var(--radius-control,4px);font-size:.875rem;line-height:1.45;caret-color:var(--primary,#0067c0);}.ds-input-shell input::placeholder{color:var(--text-secondary,#5d5d5d);opacity:1;}.ds-input-shell select{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;width:auto;min-width:72px;max-width:50%;padding:4px;border:0;border-left:1px solid var(--border-subtle,#e5e5e5);background:var(--base,#fafafa);border-radius:0 var(--radius-control,4px) var(--radius-control,4px) 0;font-size:.75rem;color:var(--text-secondary,#5d5d5d);}.ds-input-shell select:disabled{color:var(--text-secondary,#5d5d5d);background:var(--subtle,#f3f3f3);cursor:default;}.ds-input-shell input:focus-visible,.ds-input-shell select:focus-visible{outline:2px solid var(--primary,#0067c0);outline-offset:1px;}.ds-input-shell.ds-invalid,.ds-field [aria-invalid=\"true\"]{border-color:var(--error,#c42b1c);}.ds-field-error{color:var(--error,#c42b1c);font-size:.75rem;line-height:1.5;overflow-wrap:anywhere;}"
+      "description": "单位输入与可选型号 / 标称容量复用真实 Field 外壳、空值和自动重排字段行。",
+      "html": "<div class=\"ds-field\"><label for=\"ds-q-input\">日均写入</label><div class=\"ds-input-shell\"><input id=\"ds-q-input\" name=\"q\" inputmode=\"decimal\" autocomplete=\"off\" placeholder=\"例如 35\"><select aria-label=\"日均写入单位\"><option>GB/天</option><option>TB/天</option><option>GiB/天</option><option>TiB/天</option></select></div></div><div class=\"ds-card-identity\"><div class=\"ds-field\"><label for=\"ds-card-name\">卡片型号（可选）</label><div class=\"ds-input-shell\"><input id=\"ds-card-name\" name=\"cardName\" autocomplete=\"off\" placeholder=\"例如：品牌与系列\"></div></div><div class=\"ds-field\"><label for=\"ds-card-capacity\">标称容量（可选）</label><div class=\"ds-input-shell\"><input id=\"ds-card-capacity\" name=\"nominalCapacity\" inputmode=\"decimal\" autocomplete=\"off\" placeholder=\"例如 16\"><span class=\"ds-input-unit\">GB</span></div></div></div><p class=\"ds-identity-hint\">型号和容量用于记录卡片；已知主机 TBW 时，不填也能计算。容量本身不能推算耐久。</p>",
+      "css": ".ds-field{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;display:grid;align-content:start;gap:6px;min-width:0;}.ds-field>label{font-size:.75rem;font-weight:500;color:var(--text-secondary,#5d5d5d);line-height:1.45;}.ds-input-shell{display:flex;align-items:stretch;width:100%;min-height:38px;border:1px solid var(--border,#d2d2d2);border-radius:var(--radius-control,4px);background:var(--surface,#fff);}.ds-input-shell:hover{border-color:#8a8a8a;}.ds-input-shell:focus-within{border-color:var(--primary,#0067c0);}.ds-input-shell input{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;min-width:0;width:100%;padding:8px;border:0;background:transparent;color:var(--text,#1b1b1b);border-radius:var(--radius-control,4px);font-size:.875rem;line-height:1.45;caret-color:var(--primary,#0067c0);}.ds-input-shell input::placeholder{color:var(--text-secondary,#5d5d5d);opacity:1;}.ds-input-shell select{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;width:auto;min-width:72px;max-width:50%;padding:4px;border:0;border-left:1px solid var(--border-subtle,#e5e5e5);background:var(--base,#fafafa);border-radius:0 var(--radius-control,4px) var(--radius-control,4px) 0;font-size:.75rem;color:var(--text-secondary,#5d5d5d);}.ds-input-shell select:disabled{color:var(--text-secondary,#5d5d5d);background:var(--subtle,#f3f3f3);cursor:default;}.ds-input-shell input:focus-visible,.ds-input-shell select:focus-visible{outline:2px solid var(--primary,#0067c0);outline-offset:1px;}.ds-input-shell.ds-invalid,.ds-field [aria-invalid=\"true\"]{border-color:var(--error,#c42b1c);}.ds-field-error{color:var(--error,#c42b1c);font-size:.75rem;line-height:1.5;overflow-wrap:anywhere;}.ds-card-identity{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,11.25rem),1fr));gap:12px;margin-top:10px;}.ds-input-unit{display:flex;align-items:center;padding:4px 8px;color:var(--text-secondary,#5d5d5d);font-size:.75rem;white-space:nowrap;}.ds-identity-hint{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;margin:10px 0 0;color:var(--text-secondary,#5d5d5d);font-size:.6875rem;line-height:1.5;overflow-wrap:anywhere;}@media(max-width:600px){.ds-card-identity{grid-template-columns:minmax(0,1fr);}}"
     },
     {
       "name": "主导航",
@@ -478,11 +586,26 @@
       "css": ".ds-notice{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;margin:12px 0 0;background:var(--warning-bg,#fff4ce);color:var(--warning,#8a5200);border-radius:var(--radius-control,4px);padding:12px;font-size:.75rem;line-height:1.55;overflow-wrap:anywhere;}"
     },
     {
-      "name": "字段帮助触发器",
+      "name": "帮助与关闭触发器",
       "kind": "button",
-      "description": "原始 Figma 16px SVG 置于 24px 原生帮助按钮内。",
-      "html": "<button type=\"button\" class=\"ds-info-button\" aria-label=\"帮助：日均写入\" aria-haspopup=\"dialog\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M8 14C11.3137 14 14 11.3137 14 8C14 4.68629 11.3137 2 8 2C4.68629 2 2 4.68629 2 8C2 11.3137 4.68629 14 8 14Z\" stroke=\"#5D5D5D\" stroke-width=\"1.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M6.33333 6C6.33333 5.55797 6.50893 5.13405 6.82149 4.82149C7.13405 4.50893 7.55797 4.33333 8 4.33333C8.44203 4.33333 8.86595 4.50893 9.17851 4.82149C9.49107 5.13405 9.66667 5.55797 9.66667 6C9.66667 7.2 8 7.33333 8 8.66667M8 11V11.0067\" stroke=\"#5D5D5D\" stroke-width=\"1.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg></button>",
-      "css": ".ds-info-button{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;flex:0 0 24px;padding:0;border:0;background:transparent;border-radius:var(--radius-control,4px);cursor:pointer;transition:background-color 150ms ease-out,border-color 150ms ease-out;}.ds-info-button:hover{background:var(--subtle,#f3f3f3);}.ds-info-button svg{display:block;}.ds-info-button:focus-visible{outline:2px solid var(--primary,#0067c0);outline-offset:3px;}@media(prefers-reduced-motion:reduce){.ds-info-button{transition:none!important;animation:none!important;scroll-behavior:auto!important;}}"
+      "description": "帮助保留 Figma 16px SVG / 24px 按钮；原生弹窗关闭使用代码 20px SVG / 32px 按钮。",
+      "html": "<button type=\"button\" class=\"ds-info-button\" aria-label=\"帮助：日均写入\" aria-haspopup=\"dialog\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M8 14C11.3137 14 14 11.3137 14 8C14 4.68629 11.3137 2 8 2C4.68629 2 2 4.68629 2 8C2 11.3137 4.68629 14 8 14Z\" stroke=\"#5D5D5D\" stroke-width=\"1.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M6.33333 6C6.33333 5.55797 6.50893 5.13405 6.82149 4.82149C7.13405 4.50893 7.55797 4.33333 8 4.33333C8.44203 4.33333 8.86595 4.50893 9.17851 4.82149C9.49107 5.13405 9.66667 5.55797 9.66667 6C9.66667 7.2 8 7.33333 8 8.66667M8 11V11.0067\" stroke=\"#5D5D5D\" stroke-width=\"1.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg></button> <button type=\"button\" class=\"ds-close-button\" aria-label=\"关闭弹窗\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M6 6l12 12M6 18L18 6\"/></svg></button>",
+      "css": ".ds-info-button{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;flex:0 0 24px;padding:0;border:0;background:transparent;border-radius:var(--radius-control,4px);cursor:pointer;transition:background-color 150ms ease-out,border-color 150ms ease-out;}.ds-info-button:hover{background:var(--subtle,#f3f3f3);}.ds-info-button svg{display:block;}.ds-info-button:focus-visible{outline:2px solid var(--primary,#0067c0);outline-offset:3px;}@media(prefers-reduced-motion:reduce){.ds-info-button{transition:none!important;animation:none!important;scroll-behavior:auto!important;}}.ds-close-button{display:inline-grid;place-items:center;flex-shrink:0;width:32px;height:32px;padding:0;background:transparent;border:0;border-radius:var(--radius-control,4px);color:var(--text-secondary,#5d5d5d);cursor:pointer;transition:background-color 150ms ease-out,border-color 150ms ease-out;}.ds-close-button:hover{background:var(--subtle,#f3f3f3);}.ds-close-button:focus-visible{outline:2px solid var(--primary,#0067c0);outline-offset:3px;}@media(prefers-reduced-motion:reduce){.ds-close-button{transition:none!important;animation:none!important;scroll-behavior:auto!important;}}"
+    },
+    {
+      "name": "来源预设与假设采用",
+      "kind": "custom",
+      "description": "品牌 / 容量浏览、公开规格、尚缺输入与显式 TBW 采用共享已有字段和信息浅蓝事实区。",
+      "html": "<div class=\"ds-preset-controls\"><div class=\"ds-preset-filters\"><div class=\"ds-preset-field\"><label for=\"ds-brand-filter\">品牌筛选</label><select id=\"ds-brand-filter\" name=\"brandFilter\"><option>Transcend</option><option>全部品牌</option></select></div><div class=\"ds-preset-field\"><label for=\"ds-capacity-filter\">容量筛选</label><select id=\"ds-capacity-filter\" name=\"capacityFilter\"><option>16 GB</option><option>全部容量</option></select></div></div><div class=\"ds-preset-field\"><label for=\"ds-preset-model\">卡片型号 / 容量（可选）</label><select id=\"ds-preset-model\" name=\"presetId\"><option>Transcend USD230I · 产品线资料版 · 16 GB</option></select></div><div class=\"ds-preset-facts\"><strong class=\"ds-preset-name\">Transcend USD230I · 产品线资料版 · 16 GB</strong><p>料号：TS16GUSD230I</p><dl class=\"ds-preset-specs\"><div><dt>标称容量</dt><dd>16 GB</dd></div><div><dt>厂商 TBW</dt><dd>1,400 TB</dd></div><div><dt>系列 P/E</dt><dd>60,000 次</dd></div></dl><p>已自动填写：型号、标称容量、写入预算。</p><p><strong>还需填写：</strong>卡片状态、日均写入。</p><div class=\"ds-preset-confirmation\"><p>厂商原指标 · 厂商资料未明确 Host / NAND 计数口径；采用为主机预算时须确认是本次假设。</p><label class=\"ds-preset-check\"><input name=\"presetAdopted\" type=\"checkbox\"><span>将厂商 TBW 作为本次主机写入预算假设</span></label></div><details class=\"ds-preset-source\"><summary>厂商来源与适用条件</summary><div class=\"ds-preset-detail\"><a href=\"https://jp.transcend-info.com/Embedded/About/press/11754\" target=\"_blank\" rel=\"noreferrer\" aria-label=\"查看厂商来源（新窗口）\">查看厂商来源</a><p>产业用 SD 产品线 · USD230I 容量 / TBW 表与 60K P/E 说明</p><p>SLC 模式；逐容量引用厂商表格，未用最大容量数值线性外推。</p><p>资料不提供有效循环容量和 WAF；不同批次或资料版本需按具体料号核对。</p><p>来源核查：2026-10-02 · 来源已记录，实际使用条件仍需核对。</p></div></details></div></div>",
+      "css": ".ds-preset-controls{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;display:grid;gap:10px;min-width:0;color:var(--text,#1b1b1b);}.ds-preset-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,11.25rem),1fr));gap:12px;}.ds-preset-field{display:grid;align-content:start;gap:6px;min-width:0;}.ds-preset-field>label{font-size:.75rem;font-weight:500;color:var(--text-secondary,#5d5d5d);line-height:1.45;}.ds-preset-field>select{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;padding:8px;min-height:38px;width:100%;min-width:0;background:var(--surface,#fff);border:1px solid var(--border,#d2d2d2);border-radius:var(--radius-control,4px);font-size:.875rem;color:var(--text,#1b1b1b);}.ds-preset-field>select:focus-visible{outline:2px solid var(--primary,#0067c0);outline-offset:1px;}.ds-preset-field>select:disabled{background:var(--subtle,#f3f3f3);color:var(--text-secondary,#5d5d5d);}.ds-preset-facts{background:var(--info-bg,#f0f6fc);border-radius:var(--radius-control,4px);padding:12px;font-size:.75rem;line-height:1.6;display:grid;gap:6px;overflow-wrap:anywhere;}.ds-preset-facts p{margin:0;}.ds-preset-name{color:var(--text,#1b1b1b);}.ds-preset-specs{display:flex;flex-wrap:wrap;gap:12px 24px;margin:0;font-variant-numeric:tabular-nums;}.ds-preset-specs>div{display:grid;gap:2px;}.ds-preset-specs dt{color:var(--text-secondary,#5d5d5d);font-size:.6875rem;}.ds-preset-specs dd{margin:0;font-weight:500;overflow-wrap:anywhere;}.ds-preset-confirmation{display:grid;gap:8px;padding-top:8px;border-top:1px solid var(--border,#d2d2d2);}.ds-preset-check{display:flex;align-items:start;gap:8px;padding:4px 0;min-height:32px;cursor:pointer;}.ds-preset-check input{accent-color:var(--primary,#0067c0);width:16px;height:16px;margin:2px 0;flex-shrink:0;}.ds-preset-check input:focus-visible{outline:2px solid var(--primary,#0067c0);outline-offset:1px;}.ds-preset-check input[aria-invalid=true]{border-color:var(--error,#c42b1c);}.ds-preset-source>summary{cursor:pointer;list-style:none;font-size:.75rem;font-weight:500;display:flex;align-items:center;gap:8px;min-height:36px;padding:6px 0;color:var(--primary,#0067c0);text-decoration:underline;text-underline-offset:3px;}.ds-preset-source>summary::-webkit-details-marker{display:none;}.ds-preset-source>summary:hover{color:var(--primary,#0067c0);}.ds-preset-source>summary:focus-visible,.ds-preset-detail a:focus-visible{outline:2px solid var(--primary,#0067c0);outline-offset:3px;}.ds-preset-detail{display:grid;gap:6px;padding:6px 0 4px;}.ds-preset-detail a{color:var(--primary,#0067c0);text-underline-offset:3px;overflow-wrap:anywhere;}.ds-preset-detail a:hover{color:var(--primary-hover,#005aa8);}@media(max-width:600px){.ds-preset-filters{grid-template-columns:minmax(0,1fr);}}"
+    },
+    {
+      "name": "未知历史恢复面板",
+      "kind": "custom",
+      "refersTo": "panel",
+      "description": "历史未知的成功快照保留已知预算与年度需求，提供补充历史和带入负载两条路径；编辑后两动作禁用。",
+      "html": "<section class=\"ds-unknown-history\"><h3>选择下一步</h3><p>计算现有卡的剩余时间，需要从首次使用以来的累计主机写入量。历史未知时，已知的总预算和未来负载仍可作为参考。</p><div class=\"ds-recovery-options\"><div><h4>有完整计数记录</h4><p>补充累计历史后，重新计算剩余预算和时间。</p><button type=\"button\" class=\"ds-recovery-button\">补充累计历史</button></div><div><h4>只想规划未来使用</h4><p>带入 35 GB/天，再填目标年限，计算需要多少写入预算。</p><button type=\"button\" class=\"ds-recovery-button ds-recovery-primary\">带入此负载算选型需求</button></div></div><details class=\"ds-known-calculation\"><summary>查看已知信息的计算过程</summary><div class=\"ds-known-detail\"><p>设定主机总预算：128 TB。未扣除未知历史，不作为剩余预算。</p><p class=\"ds-known-formula\">每年主机写入需求 = 35 GB/天 ÷ 1000 × 365 = 12.775 TB/年。</p><p class=\"ds-known-hint\">这里的需求描述未来负载；无法据此判断现有卡能否满足。</p></div></details></section>",
+      "css": ".ds-unknown-history{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;display:grid;gap:12px;font-size:.8125rem;line-height:1.5;border:1px solid var(--border,#d2d2d2);border-radius:var(--radius-panel,8px);background:var(--surface,#fff);padding:var(--space-panel,18px);min-width:0;color:var(--text,#1b1b1b);}.ds-unknown-history h3{margin:0;font-size:1rem;font-weight:700;line-height:1.5;}.ds-unknown-history p{margin:0;overflow-wrap:anywhere;}.ds-unknown-history>p{color:var(--text-secondary,#5d5d5d);max-width:70ch;}.ds-recovery-options{display:grid;gap:0;}.ds-recovery-options>div{display:grid;justify-items:start;gap:8px;padding:16px 0;border-top:1px solid var(--border-subtle,#e5e5e5);}.ds-recovery-options h4{margin:0;font-size:.875rem;font-weight:500;}.ds-recovery-options p{color:var(--text-secondary,#5d5d5d);font-size:.75rem;}.ds-recovery-button{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;font-size:.875rem;line-height:1.4;padding:8px 14px;min-height:36px;border:1px solid var(--border,#d2d2d2);border-radius:var(--radius-control,4px);background:var(--surface,#fff);color:var(--text,#1b1b1b);text-align:center;cursor:pointer;transition:background-color 150ms ease-out,border-color 150ms ease-out;}.ds-recovery-button:hover{background:var(--subtle,#f3f3f3);border-color:#8a8a8a;}.ds-recovery-button:active{background:var(--border-subtle,#e5e5e5);}.ds-recovery-primary{background:var(--primary,#0067c0);border-color:var(--primary,#0067c0);color:var(--surface,#fff);}.ds-recovery-primary:hover{background:var(--primary-hover,#005aa8);border-color:var(--primary-hover,#005aa8);}.ds-recovery-primary:active{background:var(--primary-pressed,#004b8c);}.ds-recovery-button:disabled{background:var(--subtle,#f3f3f3);border-color:var(--border,#d2d2d2);color:var(--text-secondary,#5d5d5d);cursor:default;}.ds-recovery-button:focus-visible,.ds-known-calculation>summary:focus-visible{outline:2px solid var(--primary,#0067c0);outline-offset:3px;}.ds-known-calculation>summary{cursor:pointer;list-style:none;font-size:.75rem;font-weight:500;display:flex;align-items:center;gap:8px;min-height:36px;padding:6px 0;color:var(--primary,#0067c0);}.ds-known-calculation>summary::-webkit-details-marker{display:none;}.ds-known-calculation>summary:hover{color:var(--primary,#0067c0);}.ds-known-detail{display:grid;gap:12px;padding:12px 0 4px;}.ds-known-formula{font-variant-numeric:tabular-nums;overflow-wrap:anywhere;}.ds-known-hint{color:var(--text-secondary,#5d5d5d);font-size:.6875rem;line-height:1.5;overflow-wrap:anywhere;}@media(prefers-reduced-motion:reduce){.ds-recovery-button{transition:none!important;animation:none!important;scroll-behavior:auto!important;}}"
     }
   ],
   "narrative": {

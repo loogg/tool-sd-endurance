@@ -1,0 +1,417 @@
+[
+  {
+    "requested": 1440,
+    "client": 1440,
+    "columns": "500px 756px",
+    "media1359": false,
+    "q": "35",
+    "result": "8.6 年",
+    "scroll": 1425,
+    "ticks": [
+      "现在",
+      "2.1 年",
+      "4.3 年",
+      "6.4 年",
+      "8.6 年"
+    ],
+    "width": 1440
+  },
+  {
+    "requested": 1360,
+    "client": 1345,
+    "columns": "500px 756px",
+    "media1359": false,
+    "q": "35",
+    "result": "8.6 年",
+    "scroll": 1345,
+    "ticks": [
+      "现在",
+      "2.1 年",
+      "4.3 年",
+      "6.4 年",
+      "8.6 年"
+    ],
+    "width": 1360
+  },
+  {
+    "requested": 1359,
+    "client": 1344,
+    "columns": "440px 816px",
+    "media1359": true,
+    "q": "35",
+    "result": "8.6 年",
+    "scroll": 1344,
+    "ticks": [
+      "现在",
+      "2.1 年",
+      "4.3 年",
+      "6.4 年",
+      "8.6 年"
+    ],
+    "width": 1359
+  },
+  {
+    "requested": 1358,
+    "client": 1343,
+    "columns": "440px 816px",
+    "media1359": true,
+    "q": "35",
+    "result": "8.6 年",
+    "scroll": 1343,
+    "ticks": [
+      "现在",
+      "2.1 年",
+      "4.3 年",
+      "6.4 年",
+      "8.6 年"
+    ],
+    "width": 1358
+  },
+  {
+    "requested": 1164,
+    "client": 1149,
+    "columns": "440px 637px",
+    "media1359": true,
+    "q": "35",
+    "result": "8.6 年",
+    "scroll": 1149,
+    "ticks": [
+      "现在",
+      "4.3 年",
+      "8.6 年"
+    ],
+    "width": 1164
+  },
+  {
+    "requested": 1163,
+    "client": 1148,
+    "columns": "1100px",
+    "media1359": true,
+    "q": "35",
+    "result": "8.6 年",
+    "scroll": 1148,
+    "ticks": [
+      "现在",
+      "2.1 年",
+      "4.3 年",
+      "6.4 年",
+      "8.6 年"
+    ],
+    "width": 1163
+  },
+  {
+    "requested": 1162,
+    "client": 1147,
+    "columns": "1099px",
+    "media1359": true,
+    "q": "35",
+    "result": "8.6 年",
+    "scroll": 1147,
+    "ticks": [
+      "现在",
+      "2.1 年",
+      "4.3 年",
+      "6.4 年",
+      "8.6 年"
+    ],
+    "width": 1162
+  },
+  {
+    "requested": 1101,
+    "client": 1086,
+    "columns": "1038px",
+    "media1359": true,
+    "q": "35",
+    "result": "8.6 年",
+    "scroll": 1086,
+    "ticks": [
+      "现在",
+      "2.1 年",
+      "4.3 年",
+      "6.4 年",
+      "8.6 年"
+    ],
+    "width": 1101
+  },
+  {
+    "requested": 1100,
+    "client": 1085,
+    "columns": "1037px",
+    "media1359": true,
+    "q": "35",
+    "result": "8.6 年",
+    "scroll": 1085,
+    "ticks": [
+      "现在",
+      "2.1 年",
+      "4.3 年",
+      "6.4 年",
+      "8.6 年"
+    ],
+    "width": 1100
+  },
+  {
+    "requested": 1099,
+    "client": 1084,
+    "columns": "1036px",
+    "media1359": true,
+    "q": "35",
+    "result": "8.6 年",
+    "scroll": 1084,
+    "ticks": [
+      "现在",
+      "2.1 年",
+      "4.3 年",
+      "6.4 年",
+      "8.6 年"
+    ],
+    "width": 1099
+  },
+  {
+    "requested": 1024,
+    "client": 1009,
+    "columns": "961px",
+    "media1359": true,
+    "q": "35",
+    "result": "8.6 年",
+    "scroll": 1009,
+    "ticks": [
+      "现在",
+      "2.1 年",
+      "4.3 年",
+      "6.4 年",
+      "8.6 年"
+    ],
+    "width": 1024
+  },
+  {
+    "requested": 865,
+    "client": 850,
+    "columns": "802px",
+    "media1359": true,
+    "q": "35",
+    "result": "8.6 年",
+    "scroll": 850,
+    "ticks": [
+      "现在",
+      "2.1 年",
+      "4.3 年",
+      "6.4 年",
+      "8.6 年"
+    ],
+    "width": 865
+  },
+  {
+    "requested": 864,
+    "client": 849,
+    "columns": "801px",
+    "media1359": true,
+    "q": "35",
+    "result": "8.6 年",
+    "scroll": 849,
+    "ticks": [
+      "现在",
+      "2.1 年",
+      "4.3 年",
+      "6.4 年",
+      "8.6 年"
+    ],
+    "width": 864
+  },
+  {
+    "requested": 863,
+    "client": 848,
+    "columns": "800px",
+    "media1359": true,
+    "q": "35",
+    "result": "8.6 年",
+    "scroll": 848,
+    "ticks": [
+      "现在",
+      "2.1 年",
+      "4.3 年",
+      "6.4 年",
+      "8.6 年"
+    ],
+    "width": 863
+  },
+  {
+    "requested": 672,
+    "client": 657,
+    "columns": "609px",
+    "media1359": true,
+    "q": "35",
+    "result": "8.6 年",
+    "scroll": 657,
+    "ticks": [
+      "现在",
+      "2.1 年",
+      "4.3 年",
+      "6.4 年",
+      "8.6 年"
+    ],
+    "width": 672
+  },
+  {
+    "requested": 671,
+    "client": 656,
+    "columns": "608px",
+    "media1359": true,
+    "q": "35",
+    "result": "8.6 年",
+    "scroll": 656,
+    "ticks": [
+      "现在",
+      "2.1 年",
+      "4.3 年",
+      "6.4 年",
+      "8.6 年"
+    ],
+    "width": 671
+  },
+  {
+    "requested": 670,
+    "client": 655,
+    "columns": "607px",
+    "media1359": true,
+    "q": "35",
+    "result": "8.6 年",
+    "scroll": 655,
+    "ticks": [
+      "现在",
+      "2.1 年",
+      "4.3 年",
+      "6.4 年",
+      "8.6 年"
+    ],
+    "width": 670
+  },
+  {
+    "requested": 601,
+    "client": 586,
+    "columns": "538px",
+    "media1359": true,
+    "q": "35",
+    "result": "8.6 年",
+    "scroll": 586,
+    "ticks": [
+      "现在",
+      "2.1 年",
+      "4.3 年",
+      "6.4 年",
+      "8.6 年"
+    ],
+    "width": 601
+  },
+  {
+    "requested": 600,
+    "client": 585,
+    "columns": "553px",
+    "media1359": true,
+    "q": "35",
+    "result": "8.6 年",
+    "scroll": 585,
+    "ticks": [
+      "现在",
+      "2.1 年",
+      "4.3 年",
+      "6.4 年",
+      "8.6 年"
+    ],
+    "width": 600
+  },
+  {
+    "requested": 599,
+    "client": 584,
+    "columns": "552px",
+    "media1359": true,
+    "q": "35",
+    "result": "8.6 年",
+    "scroll": 584,
+    "ticks": [
+      "现在",
+      "2.1 年",
+      "4.3 年",
+      "6.4 年",
+      "8.6 年"
+    ],
+    "width": 599
+  },
+  {
+    "requested": 550,
+    "client": 535,
+    "columns": "503px",
+    "media1359": true,
+    "q": "35",
+    "result": "8.6 年",
+    "scroll": 535,
+    "ticks": [
+      "现在",
+      "2.1 年",
+      "4.3 年",
+      "6.4 年",
+      "8.6 年"
+    ],
+    "width": 550
+  },
+  {
+    "requested": 432,
+    "client": 417,
+    "columns": "385px",
+    "media1359": true,
+    "q": "35",
+    "result": "8.6 年",
+    "scroll": 417,
+    "ticks": [
+      "现在",
+      "4.3 年",
+      "8.6 年"
+    ],
+    "width": 432
+  },
+  {
+    "requested": 431,
+    "client": 416,
+    "columns": "384px",
+    "media1359": true,
+    "q": "35",
+    "result": "8.6 年",
+    "scroll": 416,
+    "ticks": [
+      "现在",
+      "4.3 年",
+      "8.6 年"
+    ],
+    "width": 431
+  },
+  {
+    "requested": 430,
+    "client": 415,
+    "columns": "383px",
+    "media1359": true,
+    "q": "35",
+    "result": "8.6 年",
+    "scroll": 415,
+    "ticks": [
+      "现在",
+      "4.3 年",
+      "8.6 年"
+    ],
+    "width": 430
+  },
+  {
+    "requested": 320,
+    "client": 305,
+    "columns": "273px",
+    "media1359": true,
+    "q": "35",
+    "result": "8.6 年",
+    "scroll": 305,
+    "ticks": [
+      "现在",
+      "4.3 年",
+      "8.6 年"
+    ],
+    "width": 320
+  }
+]

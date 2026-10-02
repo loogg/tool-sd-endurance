@@ -14,3 +14,7 @@ FIRST VIEWPORT: A 56px header and a maximum 1280px workspace; a 500px parameter 
 FORM: The assigned Figma composition. Seed: supplied-design-jw3p4QykbgwxkEE9MFQnF4-2026-10-01; no alternative visual identity is requested.
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+
+## v1.1 user amendments
+
+The user asks for visible optional custom model/capacity fields, one consistent common/advanced A/B method entrance, a plain explanation of P/E, useful known facts and recovery actions for unknown history, broader sourced 8/16 GB presets, and automatic filling of published parameters with an explanation of missing personal data. Preserve the incumbent visual world and all model-00 counting/snapshot rules. Unknown history stays unknown; never fill nominal capacity as the NAND cycling pool or video hours as host TBW. Category/brand/capacity filters browse rather than erase the current card. Evidence and source adoption remain separate from manufacturer certification.

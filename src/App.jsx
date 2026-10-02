@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import Analysis from './Analysis'
 import { AdvancedModal, Chevron, Field, HelpPopover, HistoryModal, SelectField } from './components'
 import { blankAdvanced, blankInput, calculate, exact, signature } from './model'
-import { adoptPreset, applyPreset, categories, presets } from './presets'
+import { adoptPreset, applyPreset, clearPreset, presets } from './presets'
+import PresetControls from './PresetControls'
 import { help } from './help'
 import Theory from './Theory'
 
@@ -27,7 +28,11 @@ export default function App() {
   const preset = presets.find(record => record.id === input.presetId)
   function updateState(update) { setStates(old => ({ ...old, [mode]: update(old[mode]) })) }
   function change(key, value) {
-    updateState(old => ({ ...old, input: { ...old.input, [key]: value, presetModified: old.input.presetModified || (!!old.input.presetId && ['E', 'eUnit', 'C', 'cUnit', 'PE', 'wafFuture', 'wafPast'].includes(key)) }, errors: { ...old.errors, [key]: undefined } }))
+    updateState(old => {
+      const nextInput = { ...old.input, [key]: value, presetModified: old.input.presetModified || (!!old.input.presetId && ['E', 'eUnit', 'PE'].includes(key)) }
+      const nextAdvanced = ['cardName', 'nominalCapacity'].includes(key) ? { ...old.advanced, model: [nextInput.cardName.trim(), nextInput.nominalCapacity.trim() ? `${nextInput.nominalCapacity.trim()} GB` : ''].filter(Boolean).join(' · ') } : old.advanced
+      return { ...old, input: nextInput, advanced: nextAdvanced, errors: { ...old.errors, [key]: undefined, ...(['E', 'eUnit'].includes(key) ? { presetAdopted: undefined } : {}) } }
+    })
   }
   function switchMode(next) {
     setHelpState(null)
@@ -49,7 +54,7 @@ export default function App() {
     event.preventDefault()
     const calculated = calculate(mode, input)
     if (calculated.errors) {
-      updateState(old => ({ ...old, errors: calculated.errors, input: mode === 'D' && ['E', 'H', 'history'].some(key => calculated.errors[key]) ? { ...old.input, candidateOpen: true } : old.input }))
+      updateState(old => ({ ...old, errors: calculated.errors, input: mode === 'D' && ['E', 'H', 'history', 'nominalCapacity', 'presetAdopted'].some(key => calculated.errors[key]) ? { ...old.input, candidateOpen: true } : mode === 'B' && calculated.errors.nominalCapacity ? { ...old.input, referenceOpen: true } : old.input }))
       setAnnouncement(`计算未更新。请检查 ${Object.keys(calculated.errors).length} 项输入。`)
       requestAnimationFrame(() => {
         const target = Array.from(formRef.current?.elements || []).find(element => calculated.errors[element.name])
@@ -65,10 +70,33 @@ export default function App() {
   function choosePreset(id) {
     updateState(old => ({ ...old, ...applyPreset(mode, old.input, old.advanced, id), errors: {} }))
   }
+  function chooseCategory(category) {
+    updateState(old => category === 'custom' ? { ...old, ...clearPreset(mode, old.input, old.advanced), errors: {} } : { ...old, input: { ...old.input, category, brandFilter: '', capacityFilter: '' } })
+  }
+  function completeHistory() {
+    if (dirty) return
+    change(mode === 'B' ? 'consumption' : 'history', mode === 'B' ? 'nand' : 'used')
+    requestAnimationFrame(() => {
+      const target = formRef.current?.elements.namedItem(mode === 'B' ? 'N' : 'H')
+      target?.focus(); target?.scrollIntoView({ block: 'center', behavior: 'instant' })
+    })
+    setAnnouncement('请填写从首次使用以来的完整累计历史；重新计算后更新剩余时间。')
+  }
+  function planWithLoad() {
+    if (!snapshot || dirty) return
+    const source = snapshot
+    switchMode('D')
+    setStates(old => ({ ...old, D: { ...old.D, input: { ...old.D.input, q: source.input.q, qUnit: source.input.qUnit }, advanced: { ...old.D.advanced, workloadSource: source.advanced.workloadSource, window: source.advanced.window }, errors: { ...old.D.errors, q: undefined } } }))
+    requestAnimationFrame(() => {
+      const target = formRef.current?.elements.namedItem('Y')
+      target?.focus(); target?.scrollIntoView({ block: 'center', behavior: 'instant' })
+    })
+    setAnnouncement('已带入本次日均写入负载。请填写目标年限并计算选型需求；原模式数据保留。')
+  }
   const openHelp = (topic, anchor) => setHelpState(old => old?.topic === topic ? null : { topic, anchor })
   const field = (name, label, { unit, unitKey, placeholder, helpKey = name, disabled = false } = {}) => <Field name={name} label={label} value={input[name]} onChange={value => change(name, value)} unit={unit} unitValue={unitKey ? input[unitKey] : undefined} onUnitChange={unitKey ? value => change(unitKey, value) : undefined} error={errors[name]} placeholder={placeholder} helpKey={help[helpKey] ? helpKey : null} onHelp={openHelp} disabled={disabled} />
   const historyField = label => <SelectField name="history" label={label} value={input.history} onChange={value => change('history', value)} options={histories} error={errors.history} />
-  const presetControls = <PresetControls mode={mode} input={input} preset={preset} onCategory={category => updateState(old => ({ ...old, input: { ...old.input, category, presetId: '', presetAdopted: false, presetModified: false }, advanced: { ...old.advanced, sourceKind: 'assumption', model: '', source: '', locator: '' } }))} onPreset={choosePreset} onAdopt={() => updateState(old => ({ ...old, input: adoptPreset(old.input), errors: { ...old.errors, E: undefined } }))} />
+  const presetControls = <PresetControls mode={mode} input={input} errors={errors} preset={preset} onCategory={chooseCategory} onPreset={choosePreset} onChange={change} onAdopt={value => updateState(old => ({ ...old, input: adoptPreset(old.input, value), errors: { ...old.errors, presetAdopted: undefined } }))} onSelection={() => switchMode('D')} />
   const sourceSummary = preset ? `${preset.manufacturer} ${preset.series} ${preset.capacity_gb} GB · ${input.presetModified ? '手改假设' : '有来源，条件未验证'}` : '自定义参数 · 用户假设'
   return <>
     <a className="skip-link" href="#main">跳到主要内容</a>
@@ -77,12 +105,13 @@ export default function App() {
       {view === 'analysis' ? <div className="calculator-layout">
         <form ref={formRef} className="panel input-panel" onSubmit={submit} noValidate>
           <section className="goal-section"><h2>计算目标</h2><div className="choice-buttons" role="group" aria-label="计算目标"><button type="button" aria-pressed={mode !== 'D'} className={mode !== 'D' ? 'selected' : ''} onClick={() => switchMode(budgetMode)}>写入预算</button><button type="button" aria-pressed={mode === 'D'} className={mode === 'D' ? 'selected' : ''} onClick={() => switchMode('D')}>选型需求</button></div></section>
+          {mode !== 'D' ? <section className="method-section"><h2>计算方式</h2><div className="choice-buttons" role="group" aria-label="预算方法"><button type="button" aria-pressed={mode === 'A'} className={mode === 'A' ? 'selected' : ''} onClick={() => switchMode('A')}>主机 TBW（常用）</button><button type="button" aria-pressed={mode === 'B'} className={mode === 'B' ? 'selected' : ''} onClick={() => switchMode('B')}>P/E 工程估算（高级）</button></div><p className="hint">{mode === 'A' ? '已有主机 TBW 用此方式；只知道使用计划，可以计算选型需求。' : 'P/E 是 NAND 擦写次数。仅适合掌握有效循环容量和 WAF 的工程用户；普通用户优先用主机 TBW 或选型需求。'}</p></section> : null}
           <div className="parameter-sections">
             {mode === 'A' ? <>
               <section className="parameter-section"><h2>卡片与耐久</h2>{presetControls}{field('E', '主机写入预算', { unitKey: 'eUnit', placeholder: '例如 128' })}<p className="hint">具体型号保留来源限定；自定义数值作为假设。</p></section>
               <section className="parameter-section"><h2>写入负载</h2>{historyField('卡片状态')}<div className={`field-row ${input.history !== 'used' ? 'one-field' : ''}`}>{input.history === 'used' ? field('H', '全寿命累计 Host Writes', { unitKey: 'hUnit', placeholder: '请输入完整历史累计值' }) : null}{field('q', '日均写入', { unitKey: 'qUnit', placeholder: '例如 35' })}</div><p className="hint">{input.history === 'new' ? '你已明确声明全新卡，累计历史按 0 计算。' : input.history === 'unknown' ? '历史未知不能按 0 处理。可切换选型需求，计算未来所需预算。' : '按完整自然日平均，包含停机时间。'}</p></section>
             </> : mode === 'D' ? <section className="parameter-section plan-section"><h2>使用计划</h2><div className="field-row">{field('Y', '目标年限', { unit: '年', placeholder: '例如 5' })}{field('q', '日均写入', { unitKey: 'qUnit', placeholder: '例如 35' })}</div><p className="hint">日均按完整自然日平均，包含停机时间。</p></section> : <>
-              <section className="parameter-section pe-section"><h2>NAND 磨损预算</h2><div className="choice-buttons" role="group" aria-label="预算方法"><button type="button" onClick={() => switchMode('A')}>主机 TBW</button><button type="button" className="selected" aria-pressed="true">P/E 估算</button></div><div className="field-row">{field('C', '有效循环容量', { unitKey: 'cUnit' })}{field('PE', 'P/E 上限', { unit: '次' })}</div><p className="hint">容量需对应同一 NAND 工作模式和循环池，不能默认使用卡面容量。</p>
+              <section className="parameter-section pe-section"><h2>NAND 磨损预算</h2><div className="field-row">{field('C', '有效循环容量', { unitKey: 'cUnit' })}{field('PE', 'P/E 上限', { unit: '次' })}</div><p className="hint">容量需对应同一 NAND 工作模式和循环池，不能默认使用卡面容量。</p>
                 <details open={input.referenceOpen} onToggle={event => { if (event.currentTarget.open !== input.referenceOpen) change('referenceOpen', event.currentTarget.open) }} className="reference-disclosure"><summary><Chevron open={input.referenceOpen} />型号参考（可选）</summary><div className="detail-content">{presetControls}</div></details>
               </section><section className="parameter-section pe-workload"><SelectField name="consumption" label="已经消耗的写入量来源" value={input.consumption} onChange={value => change('consumption', value)} options={consumptions} error={errors.consumption} />
                 {input.consumption === 'nand' ? field('N', '全寿命 NAND 写入', { unitKey: 'nUnit', placeholder: '请输入完整累计值' }) : input.consumption === 'estimate' ? <><div className="field-row">{field('H', '全寿命累计 Host Writes', { unitKey: 'hUnit' })}{field('wafPast', '全历史 WAF', { unit: 'NAND / Host' })}</div><p className="hint">历史 NAND 消耗由完整 Host 历史 × 全历史 WAF 估算。</p></> : null}
@@ -91,12 +120,12 @@ export default function App() {
             </>}
           </div>
           {mode === 'D' ? <details className="candidate-disclosure" open={input.candidateOpen} onToggle={event => { if (event.currentTarget.open !== input.candidateOpen) change('candidateOpen', event.currentTarget.open) }}><summary><Chevron open={input.candidateOpen} />比较候选卡（可选）</summary><div className="detail-content">{presetControls}{field('E', '候选主机写入预算', { unitKey: 'eUnit', placeholder: '不填也能计算需求', helpKey: 'E' })}{historyField('候选卡状态')}{input.history === 'used' ? field('H', '候选全寿命累计 Host Writes', { unitKey: 'hUnit', helpKey: 'H' }) : null}<p className="hint">默认比较明确全新卡；历史未知时不显示确定余量。收起保留候选数据。</p></div></details> : null}
-          <div className="form-tools">{mode === 'A' ? <button type="button" className="button method-button" onClick={() => switchMode('B')}>P/E 工程估算</button> : null}<button type="button" className="disclosure-button" onClick={() => setModal('advanced')}><Chevron />高级设置（可选）</button></div>
+          <div className="form-tools"><button type="button" className="disclosure-button" onClick={() => setModal('advanced')}><Chevron />高级设置（可选）</button></div>
           <div className="form-actions"><button type="submit" className="button primary">{snapshot ? '重新计算' : '开始计算'}</button><button type="button" className="button" onClick={() => { setStates(old => ({ ...old, [mode]: freshState(mode) })); setAnnouncement('已重置当前模式，其他模式数据保留。') }}>重置</button></div>
           {Object.values(errors).some(Boolean) ? <p className="field-error" role="alert">请修正标记的输入。{snapshot ? '上一次成功结果仍保留。' : '未生成新的计算结果。'}</p> : null}
           {snapshot ? <div className="assumptions"><strong>本次假设{dirty ? '（上次成功快照）' : ''}</strong><p>{mode === 'D' ? `目标 ${exact(snapshot.result.Y)} 年；日均 ${exact(snapshot.result.qGB)} GB。` : mode === 'B' ? `有效循环容量 ${exact(snapshot.result.C * 1000)} GB；P/E ${exact(snapshot.result.PE)}；未来 WAF ${exact(snapshot.result.wafFuture)}。` : `主机预算 ${exact(snapshot.result.E)} TB；${snapshot.result.H === null ? '历史未知' : `完整历史 ${exact(snapshot.result.H)} TB`}；日均 ${exact(snapshot.result.qGB)} GB。`}<br />不预测失效日期，适用条件仍需核对。</p></div> : null}
         </form>
-        <Analysis state={state} mode={mode} dirty={dirty} />
+        <Analysis state={state} mode={mode} dirty={dirty} onHistory={completeHistory} onSelection={planWithLoad} />
       </div> : <Theory onReturn={() => navigate('analysis')} />}
     </main>
     <footer className="site-footer"><span>全部计算在浏览器本地完成</span><a href="https://loogg.github.io/toolbox/">返回工具箱</a><a href="https://github.com/loogg/tool-sd-endurance" target="_blank" rel="noreferrer">源码</a></footer>
@@ -105,12 +134,4 @@ export default function App() {
     {modal === 'advanced' ? <AdvancedModal initial={advanced} sourceSummary={sourceSummary} onClose={() => setModal(null)} onSave={draft => { updateState(old => ({ ...old, advanced: draft })); setModal(null); setAnnouncement('高级设置已保存；重新计算后应用到结果快照。') }} /> : null}
     {modal === 'history' ? <HistoryModal initial={input} onClose={() => setModal(null)} onSave={draft => { updateState(old => ({ ...old, input: { ...old.input, ...draft }, errors: {} })); setModal(null); setAnnouncement('已采用完整历史与历史 WAF；请重新计算。') }} /> : null}
   </>
-}
-
-function PresetControls({ mode, input, preset, onCategory, onPreset, onAdopt }) {
-  const matches = presets.filter(record => record.category === input.category)
-  return <div className="preset-controls"><div className="category-row"><span className="hint">预设分类</span><div className="category-buttons" role="group" aria-label="预设分类">{categories.map(category => <button type="button" key={category.id} aria-pressed={category.id === input.category} className={category.id === input.category ? 'selected' : ''} onClick={() => onCategory(category.id)}>{category.label}</button>)}</div></div><SelectField label={mode === 'D' ? '候选型号 / 容量（可选）' : '卡片型号 / 容量（可选）'} value={input.presetId} onChange={onPreset} disabled={matches.length === 0} options={[[ '', input.category === 'custom' ? '自定义（手动输入）' : matches.length ? '请选择具体型号与容量' : '暂无适用型号资料' ], ...matches.map(record => [record.id, `${record.manufacturer} ${record.series} ${record.generation ? `${record.generation} · ` : ''}${record.capacity_gb} GB`])]} />
-    {input.category === 'consumer' ? <p className="hint">暂无口径明确的消费卡耐久资料，请使用自定义假设；分类不提供默认 TBW / P/E。</p> : null}
-    {preset ? <div className="preset-facts"><strong>{input.presetModified ? '参数已手改 · 用户假设' : '来源已记录 · 条件未验证'}</strong>{preset.published_metrics.map(metric => <p key={metric.type}>{metric.type === 'manufacturer_TBW' ? `厂商原指标：up to ${metric.value.toLocaleString()} TBW（最高容量）` : metric.type === 'PE_cycles' ? `系列 P/E：${metric.value.toLocaleString()} 次` : `录像耐久：up to ${metric.value.toLocaleString()} 小时 · Full HD / ${metric.workload.bitrate_mbps} Mbps`}</p>)}<p>{mode === 'B' ? '仅填资料公开的 P/E；有效循环容量与 WAF 未提供，请自行核对。' : preset.model_A_use}</p>{mode !== 'B' && preset.published_metrics.some(metric => metric.type === 'manufacturer_TBW') ? <button type="button" className="button" onClick={onAdopt}>{input.presetAdopted && !input.presetModified ? '重新采用 3840 TB 假设' : '采用 3840 TB 作为假设预算'}</button> : null}<a href={preset.source_url} target="_blank" rel="noreferrer">查看厂商来源 ↗</a><p>{preset.source_locator}</p>{preset.limitations?.map(line => <p key={line}>{line}</p>)}</div> : null}
-  </div>
 }
