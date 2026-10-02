@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "node --test tests/model.test.js tests/presets.test.js",
+    "test": "node --test tests/model.test.js tests/presets.test.js tests/parameters.test.js",
     "test:e2e": "playwright test"
   },
   "dependencies": {
@@ -19,6 +19,7 @@
     "recharts": "^3.10.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@eslint/js": "^9.39.1",
     "@playwright/test": "^1.63.0",
     "@types/react": "^19.2.7",

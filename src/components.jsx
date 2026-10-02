@@ -8,17 +8,18 @@ import { estimateHistory } from './model'
 
 export function Chevron({ open = false }) { return <img src={open ? downIcon : rightIcon} alt="" /> }
 
-export function Field({ name, label, value, onChange, unit, unitValue, onUnitChange, error, placeholder = '请输入', helpKey, onHelp, disabled = false, multiline = false }) {
+export function Field({ name, label, value, onChange, unit, unitValue, onUnitChange, error, placeholder = '请输入', helpKey, onHelp, disabled = false, multiline = false, required = false, inputRef, readOnly = false }) {
   const id = useId()
   const Tag = multiline ? 'textarea' : 'input'
   return (
     <div className="field">
       <div className="field-label">
         <label htmlFor={id}>{label}</label>
+        {required ? <span className="required-mark" aria-hidden="true">*</span> : null}
         {helpKey ? <button type="button" className="info-button" aria-label={`帮助：${label}`} aria-haspopup="dialog" onClick={event => onHelp(helpKey, event.currentTarget)}><img src={helpIcon} alt="" /></button> : null}
       </div>
       <div className={`input-shell ${error ? 'invalid' : ''} ${disabled ? 'disabled' : ''}`}>
-        <Tag id={id} name={name} value={value} onChange={event => onChange(event.target.value)} placeholder={placeholder} disabled={disabled} inputMode={['E', 'H', 'q', 'Y', 'C', 'PE', 'N', 'wafPast', 'wafFuture', 'nominalCapacity'].includes(name) ? 'decimal' : undefined} autoComplete="off" aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} rows={multiline ? 3 : undefined} />
+        <Tag ref={inputRef} id={id} name={name} value={value} onChange={event => onChange(event.target.value)} placeholder={placeholder} disabled={disabled} readOnly={readOnly} required={required} inputMode={['E', 'H', 'q', 'Y', 'C', 'PE', 'N', 'wafPast', 'wafFuture', 'nominalCapacity'].includes(name) ? 'decimal' : undefined} autoComplete="off" aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} rows={multiline ? 3 : undefined} />
         {onUnitChange ? <select aria-label={`${label}单位`} value={unitValue} onChange={event => onUnitChange(event.target.value)} disabled={disabled}>{['GB', 'TB', 'GiB', 'TiB'].map(u => <option key={u} value={u}>{u}{name === 'q' ? '/天' : ''}</option>)}</select> : unit ? <span className="input-unit">{unit}</span> : null}
       </div>
       {error ? <p id={`${id}-error`} className="field-error">{error}</p> : null}
@@ -26,9 +27,9 @@ export function Field({ name, label, value, onChange, unit, unitValue, onUnitCha
   )
 }
 
-export function SelectField({ name, label, value, onChange, options, error, disabled = false }) {
+export function SelectField({ name, label, value, onChange, options, error, disabled = false, required = false }) {
   const id = useId()
-  return <div className="field"><label htmlFor={id}>{label}</label><select id={id} name={name} value={value} onChange={event => onChange(event.target.value)} disabled={disabled} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined}>{options.map(([id, text]) => <option key={id} value={id}>{text}</option>)}</select>{error ? <p id={`${id}-error`} className="field-error">{error}</p> : null}</div>
+  return <div className="field"><div className="select-label"><label htmlFor={id}>{label}</label>{required ? <span className="required-mark" aria-hidden="true">*</span> : null}</div><select id={id} name={name} value={value} onChange={event => onChange(event.target.value)} disabled={disabled} required={required} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined}>{options.map(([id, text]) => <option key={id} value={id}>{text}</option>)}</select>{error ? <p id={`${id}-error`} className="field-error">{error}</p> : null}</div>
 }
 
 export function HelpPopover({ topic, anchor, onClose, onTheory }) {
@@ -54,8 +55,10 @@ export function HelpPopover({ topic, anchor, onClose, onTheory }) {
     return () => {
       window.removeEventListener('resize', position)
       window.removeEventListener('scroll', position, true)
+      const focused = document.activeElement
+      const restore = focused === document.body || element.contains(focused)
       if (element.matches(':popover-open')) element.hidePopover()
-      if (anchor.isConnected) anchor.focus({ preventScroll: true })
+      if (restore && anchor.isConnected) anchor.focus({ preventScroll: true })
     }
   }, [anchor])
   return createPortal(<div ref={ref} popover="auto" className="help-popover" role="dialog" aria-labelledby="help-title" onToggle={event => { if (event.newState === 'closed') onClose() }}><h3 id="help-title">{info.title}</h3><p>{info.body}</p><div className="help-actions"><button type="button" className="text-button" onClick={() => onTheory(info.section)}>查看计算原理</button><button type="button" className="text-button" onClick={onClose}>关闭</button></div></div>, document.body)
@@ -69,7 +72,13 @@ export function Modal({ title, onClose, children, footer, labelId = 'modal-title
     dialog.showModal()
     return () => { dialog.close(); if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true }) }
   }, [])
-  return createPortal(<dialog ref={ref} className="modal" aria-labelledby={labelId} onCancel={event => { event.preventDefault(); onClose() }} onClick={event => {
+  return createPortal(<dialog ref={ref} className="modal" aria-labelledby={labelId} onKeyDown={event => {
+    if (event.key !== 'Tab') return
+    const focusable = Array.from(event.currentTarget.querySelectorAll('button, input, select, textarea, summary, a[href], [tabindex]')).filter(element => !element.disabled && element.tabIndex >= 0 && element.getClientRects().length > 0)
+    const first = focusable[0], last = focusable.at(-1)
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus() }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus() }
+  }} onCancel={event => { event.preventDefault(); onClose() }} onClick={event => {
     if (event.target !== event.currentTarget) return
     const rect = event.currentTarget.getBoundingClientRect()
     if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) onClose()
@@ -85,7 +94,8 @@ export function AdvancedModal({ initial, sourceSummary, onClose, onSave }) {
     <div className="notice"><strong>当前：{sourceSummary}</strong><p>保存来源记录不等于厂商认证或工况验证。</p></div>
     <details className="advanced-section"><summary><Chevron />来源与测量记录（可选）</summary><div className="detail-content">
       <SelectField label="参数来源" value={draft.sourceKind} onChange={change('sourceKind')} options={[[ 'assumption', '用户假设' ], ['manufacturer', '厂商资料（保留其限定）'], ['measurement', '测量记录']]} />
-      <div className="field-row">{text('model', '型号 / 容量', '填写对应型号和容量')}{text('locator', '版本 / 页码 / 固件', '填写可追溯信息')}</div>
+      <div className="field-row"><Field name="model" label="当前型号 / 容量（只读）" value={draft.model} placeholder="未填写卡片信息（可选）" readOnly />{text('locator', '版本 / 页码 / 固件', '填写可追溯信息')}</div>
+      <p className="hint">卡片信息与主界面保持一致；修改型号或容量请在主界面选择预设或填写自定义记录。</p>
       {text('source', '资料来源', '文档链接或报告编号')}
       <div className="field-row"><SelectField label="日均写入来源" value={draft.workloadSource} onChange={change('workloadSource')} options={[[ 'planning', '规划假设' ], ['measurement', '实测平均值']]} />{text('window', '测量窗口 / 计数重置记录', '起止时间 / 重置记录')}</div>
       <p className="hint">模型提供计数单位。测量应覆盖有代表性的完整自然日。</p>
@@ -102,14 +112,20 @@ export function AdvancedModal({ initial, sourceSummary, onClose, onSave }) {
 export function HistoryModal({ initial, onClose, onSave }) {
   const [draft, setDraft] = useState(() => ({ H: initial.H, hUnit: initial.hUnit, wafPast: initial.wafPast }))
   const [errors, setErrors] = useState({})
+  const hostRef = useRef(null)
+  const wafRef = useRef(null)
+  function change(key, value) {
+    setDraft(old => ({ ...old, [key]: value }))
+    setErrors(old => ({ ...old, [key === 'hUnit' ? 'H' : key]: undefined }))
+  }
   function save() {
     const checked = estimateHistory(draft)
-    if (checked.errors) { setErrors(checked.errors); return }
+    if (checked.errors) { setErrors(checked.errors); requestAnimationFrame(() => { const target = checked.errors.H ? hostRef.current : wafRef.current; target?.focus(); target?.scrollIntoView({ block: 'nearest' }) }); return }
     onSave({ ...draft, consumption: 'estimate' })
   }
   return <Modal title="估算已经消耗的 NAND 写入量" onClose={onClose} labelId="history-title" footer={<><button type="button" className="button" onClick={onClose}>取消</button><button type="button" className="button primary" onClick={save}>采用估算</button></>}>
-    <Field label="全寿命累计 Host Writes" value={draft.H} onChange={H => setDraft(old => ({ ...old, H }))} name="H" unitValue={draft.hUnit} onUnitChange={hUnit => setDraft(old => ({ ...old, hUnit }))} error={errors.H} placeholder="请输入完整历史累计值" />
-    <Field label="全历史 WAF" value={draft.wafPast} onChange={wafPast => setDraft(old => ({ ...old, wafPast }))} name="wafPast" unit="NAND / Host" error={errors.wafPast} placeholder="请输入同一历史区间的 WAF" />
+    <Field inputRef={hostRef} label="全寿命累计 Host Writes" value={draft.H} onChange={value => change('H', value)} name="H" unitValue={draft.hUnit} onUnitChange={value => change('hUnit', value)} error={errors.H} placeholder="请输入完整历史累计值" required />
+    <Field inputRef={wafRef} label="全历史 WAF" value={draft.wafPast} onChange={value => change('wafPast', value)} name="wafPast" unit="NAND / Host" error={errors.wafPast} placeholder="请输入同一历史区间的 WAF" required />
     <strong className="formula">历史 NAND 消耗 ≈ 全寿命 Host Writes × 全历史 WAF</strong>
     <p>历史 WAF 与未来 WAF 独立；历史不完整时无法推算已用卡剩余预算。</p>
     {errors.H || errors.wafPast ? <p role="alert" className="field-error">请修正上述历史参数。</p> : <p className="hint">此处只采用历史记录；主界面重新计算后更新 NAND 消耗。</p>}

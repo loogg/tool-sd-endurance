@@ -14,14 +14,15 @@ export default function PresetControls({ mode, input, errors, preset, onCategory
   const missing = required.filter(([key]) => !String(input[key] ?? '').trim()).map(([, label]) => label)
   return <div className="preset-controls">
     <div className="category-row"><span className="hint">卡片资料</span><div className="category-buttons" role="group" aria-label="预设分类">{categories.map(category => <button type="button" key={category.id} aria-pressed={category.id === input.category} className={category.id === input.category ? 'selected' : ''} onClick={() => onCategory(category.id)}>{category.label}</button>)}</div></div>
-    {input.category === 'custom' ? <>
-      <div className="field-row card-identity"><Field name="cardName" label="卡片型号（可选）" value={input.cardName} onChange={value => onChange('cardName', value)} placeholder="例如：品牌与系列" /><Field name="nominalCapacity" label="标称容量（可选）" value={input.nominalCapacity} onChange={value => onChange('nominalCapacity', value)} unit="GB" error={errors.nominalCapacity} placeholder="例如 16" /></div>
-      <p className="hint">型号和容量用于记录卡片；{mode === 'B' ? '标称容量不能代替有效循环容量。' : '已知主机 TBW 时，不填也能计算。容量本身不能推算耐久。'}</p>
-    </> : <>
+    {input.category !== 'custom' ? <>
       <div className="field-row preset-filters"><SelectField name="brandFilter" label="品牌筛选" value={input.brandFilter} onChange={value => { onChange('brandFilter', value); onChange('capacityFilter', '') }} options={[[ '', '全部品牌' ], ...brands.map(brand => [brand, brand])]} /><SelectField name="capacityFilter" label="容量筛选" value={input.capacityFilter} onChange={value => onChange('capacityFilter', value)} options={[[ '', '全部容量' ], ...capacities.map(capacity => [String(capacity), capacity === 1000 ? '1 TB' : `${capacity} GB`])]} /></div>
       <SelectField name="presetId" label={mode === 'D' ? '候选型号 / 容量（可选）' : '卡片型号 / 容量（可选）'} value={input.presetId} onChange={onPreset} options={[[ '', matches.length ? '请选择具体型号与容量' : '此筛选暂无型号，调整品牌或容量' ], ...(outsideFilter ? [[preset.id, `当前：${cardLabel(preset)}`]] : []), ...matches.map(record => [record.id, cardLabel(record)])]} />
       <p className="hint">已收录 {presets.length} 个型号与容量组合 · 筛选找到 {matches.length} 项。{outsideFilter ? '筛选不会更换当前卡片；选择新型号才会替换参数。' : '只填公开规格，未公开的耐久参数保留为空。'}</p>
-    </>}
+    </> : null}
+    {!preset ? <>
+      <div className="field-row card-identity"><Field name="cardName" label="卡片型号（可选）" value={input.cardName} onChange={value => onChange('cardName', value)} placeholder="例如：品牌与系列" /><Field name="nominalCapacity" label="标称容量（可选）" value={input.nominalCapacity} onChange={value => onChange('nominalCapacity', value)} unit="GB" error={errors.nominalCapacity} placeholder="例如 16" /></div>
+      <p className="hint">{input.category !== 'custom' ? '未选择预设，保留当前卡片记录。' : ''}型号和容量用于记录卡片；{mode === 'B' ? '标称容量不能代替有效循环容量。' : '已知主机 TBW 时，不填也能计算。容量本身不能推算耐久。'}</p>
+    </> : null}
     {preset ? <div className="preset-facts">
       <strong className="preset-name">{cardLabel(preset)}</strong>
       {preset.part_number ? <p>料号：{preset.part_number}</p> : null}
@@ -31,7 +32,7 @@ export default function PresetControls({ mode, input, errors, preset, onCategory
       {mode === 'B' && [input.C, input.wafFuture, input.wafPast].some(value => String(value).trim()) ? <p>已保留你填写的有效循环容量与 WAF 假设；这些数值由你提供，请核对是否适用于当前卡片。</p> : null}
       {mode !== 'B' && tbw && !input.presetModified ? <div className="preset-confirmation">
         <p>{tbw.qualifier} · {preset.model_A_use}</p>
-        <label className="check-label"><input name="presetAdopted" type="checkbox" checked={input.presetAdopted} onChange={event => onAdopt(event.target.checked)} aria-invalid={!!errors.presetAdopted} aria-describedby={errors.presetAdopted ? 'preset-confirmation-error' : undefined} /><span>将厂商 TBW 作为本次主机写入预算假设</span></label>
+        <label className="check-label"><input name="presetAdopted" type="checkbox" checked={input.presetAdopted} onChange={event => onAdopt(event.target.checked)} required={input.budgetNeedsConfirmation} aria-invalid={!!errors.presetAdopted} aria-describedby={errors.presetAdopted ? 'preset-confirmation-error' : undefined} /><span>将厂商 TBW 作为本次主机写入预算假设</span></label>
         {errors.presetAdopted ? <p id="preset-confirmation-error" className="field-error">{errors.presetAdopted}</p> : null}
       </div> : mode !== 'B' && !tbw ? <><p>{preset.model_A_use}</p>{mode === 'A' ? <button type="button" className="button" onClick={onSelection}>没有 TBW？计算选型需求</button> : null}</> : mode === 'B' ? <p>标称容量不是 NAND 循环池容量；P/E 不能单独推出主机 TBW。WAF 取决于实际负载与控制器。</p> : null}
       <details className="preset-source"><summary>厂商来源与适用条件</summary><div className="detail-content"><a href={preset.source_url} target="_blank" rel="noreferrer" aria-label="查看厂商来源（新窗口）">查看厂商来源</a><p>{preset.source_locator}</p>{preset.published_metrics.filter(metric => metric.type === 'video_hours').map(metric => <p key={metric.type}>Full HD{metric.workload.bitrate_mbps ? ` / ${metric.workload.bitrate_mbps} Mbps` : ' / 测试码率未公开'}；录像小时不自动转为主机 TBW。</p>)}{preset.limitations.map(line => <p key={line}>{line}</p>)}<p>来源核查：{preset.checked} · 来源已记录，实际使用条件仍需核对。</p></div></details>

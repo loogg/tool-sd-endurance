@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { blankInput, calculate, estimateHistory, parseNumber, projection, sensitivity, UNIT_TB } from '../src/model.js'
+import { blankInput, calculate, estimateHistory, format, parseNumber, projection, sensitivity, UNIT_TB } from '../src/model.js'
 
 function calc(mode, values) {
   const evaluated = calculate(mode, { ...blankInput(mode), ...values })
@@ -93,4 +93,22 @@ test('non-demo inputs vary by the same model without hidden multipliers', () => 
   }
   near(calc('B', { C: '64', PE: '1500', N: '17.8', consumption: 'nand', wafFuture: '3.1', q: '19.4' }).remaining, (96 - 17.8) / 3.1)
   near(calc('D', { Y: '2.75', q: '12.8' }).required, 12.848)
+})
+
+test('small positive results and deficits do not round to false zero', () => {
+  assert.notEqual(format(0.01825), '0.0')
+  assert.notEqual(format(-0.01825), '-0.0')
+  assert.notEqual(format(0.0125), '0.0')
+  assert.equal(format(0), '0.0')
+})
+
+test('sensitivity handles both zero-budget/zero-load priority and unrepresentable scenarios', () => {
+  const reached = calc('A', { E: '1', H: '2', history: 'used', q: '0' })
+  assert.ok(sensitivity(reached).every(row => row.value === 0))
+  const extreme = calc('A', { E: '1e306', history: 'new', q: '1e308' })
+  const row = sensitivity(extreme).at(-1)
+  assert.equal(row.labelValue, null); assert.equal(row.value, null)
+  const plan = calc('D', { Y: '1e308', q: '0' })
+  assert.equal(sensitivity(plan).at(-1).labelValue, null)
+  assert.equal(sensitivity(plan).at(-1).value, null)
 })

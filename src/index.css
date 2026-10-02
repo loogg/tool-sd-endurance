@@ -71,6 +71,7 @@ h2, h3 { font-size: 1rem; line-height: 1.5; font-weight: 700; }
 .choice-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
 .choice-buttons button, .button { font-size: .875rem; line-height: 1.4; padding: 8px 14px; min-height: 36px; border: 1px solid var(--border); border-radius: var(--radius-control); background: var(--surface); text-align: center; }
 .choice-buttons button { font-size: .75rem; padding: 7px 14px; min-height: 32px; }
+.choice-buttons button { transition: none; }
 .choice-buttons button.selected, .button.primary { background: var(--primary); border-color: var(--primary); color: white; }
 .button:hover, .choice-buttons button:hover { background: var(--subtle); border-color: #8a8a8a; }
 .button.primary:hover, .choice-buttons button.selected:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
@@ -78,8 +79,10 @@ h2, h3 { font-size: 1rem; line-height: 1.5; font-weight: 700; }
 .button.primary:active { background: var(--primary-pressed); }
 .button:disabled { background: var(--subtle); border-color: var(--border); color: var(--text-secondary); }
 .field { display: grid; align-content: start; gap: 6px; min-width: 0; }
-.field > label, .field-label { font-size: .75rem; font-weight: 500; color: var(--text-secondary); line-height: 1.45; }
+.field > label, .field-label, .select-label { font-size: .75rem; font-weight: 500; color: var(--text-secondary); line-height: 1.45; }
 .field-label { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; min-height: 24px; }
+.select-label { display: flex; flex-wrap: wrap; gap: 4px; }
+.required-mark { color: var(--error); }
 .info-button { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; flex: 0 0 24px; padding: 0; border: 0; background: transparent; border-radius: var(--radius-control); }
 .info-button:hover { background: var(--subtle); }
 .info-button img { display: block; }

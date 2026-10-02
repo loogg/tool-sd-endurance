@@ -34,6 +34,7 @@ npm run preview
 
 - 开发包原件：`docs/handoff/`。
 - 使用的 Figma 基线：2026-10-01 读取的文件 `jw3p4QykbgwxkEE9MFQnF4`，模型 00、产品 01、设计系统 02。
+- v1.1.1 全功能 / 参数验收矩阵与独立审核：`docs/acceptance-v1.1.1.md`、`docs/finish-review-v1.1.1.md`。
 - v1.1 检查与独立审核：`docs/acceptance-v1.1.md`、`docs/finish-review-v1.1.md`。
 - 首版检查与审核存档：`docs/acceptance-report.md`、`docs/finish-review.md`。
 - 扩展预设的来源、容量和自动填入边界：`docs/card-presets.md`。

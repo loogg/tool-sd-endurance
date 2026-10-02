@@ -1,10 +1,10 @@
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import { exact, format, projection, sensitivity } from './model'
+import { exact, format, formatPercent, formatTime, projection, sensitivity } from './model'
 import { presets } from './presets'
 import { SnapshotRecords } from './components'
 
-function ProjectionChart({ result }) {
+const ProjectionChart = memo(function ProjectionChart({ result }) {
   const [narrow, setNarrow] = useState(false)
   const [scale, setScale] = useState(1)
   const chart = projection(result)
@@ -13,28 +13,32 @@ function ProjectionChart({ result }) {
   const ticks = Array.from({ length: narrow ? 3 : 5 }, (_, i) => chart.horizon * (i / (narrow ? 2 : 4)))
   const highest = Math.max(chart.points.at(-1).tb, chart.threshold ?? 0)
   const maxY = highest > 0 ? highest : 1
+  const daysAxis = chart.horizon < 1
+  const axisTime = value => daysAxis ? value * 365 : value
+  const timeUnit = daysAxis ? '天' : '年'
   return <section className="panel chart-card"><h3>{title}</h3><p className="hint">从现在起 · {exact(result.qGB)} GB/自然日{result.mode === 'B' ? ` · 未来 WAF ${exact(result.wafFuture)}` : ''}</p>
-    <div className="chart" role="img" aria-label={`${title}：${exact(chart.points[0].tb)} TB 到 ${exact(chart.points.at(-1).tb)} TB；${exact(chart.horizon)} 年。${chart.threshold === null ? '未设候选阈值。' : `预算阈值 ${exact(chart.threshold)} TB。`}`}>
+    <div className="chart" role="img" aria-label={`${title}：${exact(chart.points[0].tb)} TB 到 ${exact(chart.points.at(-1).tb)} TB；${exact(axisTime(chart.horizon))} ${timeUnit}。${chart.threshold === null ? '未设候选阈值。' : `预算阈值 ${exact(chart.threshold)} TB。`}`}>
       <ResponsiveContainer width="100%" height="100%" minWidth={0} onResize={width => { const textScale = parseFloat(getComputedStyle(document.documentElement).fontSize) / 16; setScale(textScale); setNarrow(width < 380 * textScale) }}>
         <LineChart data={chart.points} margin={{ top: 18 * scale, right: 16 * scale, left: 0, bottom: 4 }} accessibilityLayer>
           <CartesianGrid vertical={false} stroke="var(--border-subtle)" />
-          <XAxis dataKey="years" type="number" domain={[0, chart.horizon]} height={40 * scale} tickMargin={12 * scale} ticks={ticks} tickFormatter={value => value === 0 ? '现在' : `${format(value)} 年`} stroke="var(--border)" tick={{ fill: 'var(--text-secondary)', fontSize: '.6875rem' }} tickLine={false} axisLine={false} />
+          <XAxis dataKey="years" type="number" domain={[0, chart.horizon]} height={40 * scale} tickMargin={12 * scale} ticks={ticks} tickFormatter={value => value === 0 ? '现在' : `${format(axisTime(value))} ${timeUnit}`} stroke="var(--border)" tick={{ fill: 'var(--text-secondary)', fontSize: '.6875rem' }} tickLine={false} axisLine={false} />
           <YAxis domain={[0, maxY]} ticks={[0, maxY / 2, maxY]} width={(narrow ? 52 : 60) * scale} tickFormatter={value => `${Math.abs(value) >= 1e4 ? value.toExponential(1) : exact(value)}${value === 0 ? '' : ' TB'}`} tick={{ fill: 'var(--text-secondary)', fontSize: '.6875rem' }} tickLine={false} axisLine={false} />
-          <Tooltip formatter={value => [`${exact(value)} TB`, '主机写入量']} labelFormatter={value => `从现在起 ${exact(value)} 年`} contentStyle={{ borderRadius: '4px', borderColor: 'var(--border)', color: 'var(--text)', fontSize: '13px' }} />
+          <Tooltip formatter={value => [`${exact(value)} TB`, '主机写入量']} labelFormatter={value => `从现在起 ${exact(axisTime(value))} ${timeUnit}`} position={narrow ? { x: 8, y: 8 } : undefined} wrapperStyle={{ maxWidth: 'calc(100% - 16px)' }} contentStyle={{ borderRadius: '4px', borderColor: 'var(--border)', color: 'var(--text)', fontSize: '.8125rem', whiteSpace: 'normal', overflowWrap: 'anywhere' }} itemStyle={{ whiteSpace: 'normal' }} />
           {chart.threshold !== null ? <ReferenceLine y={chart.threshold} stroke="var(--warning)" strokeWidth={1} /> : null}
           <Line type="linear" dataKey="tb" stroke="var(--primary)" strokeWidth={2} dot={false} activeDot={{ r: 4 }} isAnimationActive={false} />
         </LineChart>
       </ResponsiveContainer>
     </div>
     <div className="chart-caption"><span>当前 {exact(chart.points[0].tb)} TB → {exact(chart.points.at(-1).tb)} TB</span>{chart.threshold !== null ? <span className="threshold-label">{result.mode === 'D' ? '候选可用预算' : '设定写入量'} {exact(chart.threshold)} TB</span> : null}</div>
-    <details className="chart-data"><summary>查看图表数值</summary><table><caption>{title}的情景节点</caption><thead><tr><th>从现在起（年）</th><th>主机写入量（TB）</th></tr></thead><tbody>{[0, 8, 16].map(i => <tr key={i}><td>{exact(chart.points[i].years)}</td><td>{exact(chart.points[i].tb)}</td></tr>)}</tbody></table></details>
+    <details className="chart-data"><summary>查看图表数值</summary><table><caption>{title}的情景节点</caption><thead><tr><th>从现在起（{timeUnit}）</th><th>主机写入量（TB）</th></tr></thead><tbody>{[0, 8, 16].map(i => <tr key={i}><td>{exact(axisTime(chart.points[i].years))}</td><td>{exact(chart.points[i].tb)}</td></tr>)}</tbody></table></details>
   </section>
-}
+})
 
 function Sensitivity({ result }) {
+  if (result.mode !== 'D' && result.status === 'zero') return <section className="panel sensitivity"><h3>写入负载敏感性</h3><p className="hint">当前日均写入为 0。设定正负载后可比较达到预算的时间；剩余预算保留，不表示无限寿命。</p></section>
   const rows = sensitivity(result)
   const max = Math.max(...rows.map(row => row.value ?? 0), 1)
-  return <section className="panel sensitivity"><h3>{result.mode === 'D' ? '目标年限敏感性' : '写入负载敏感性'}</h3><p className="hint">仅改变{result.mode === 'D' ? '目标年限，日均写入保持不变' : '自然日日均写入量，其他参数保持不变'}</p><ul>{rows.map((row, index) => <li key={index} className={row.current ? 'current' : ''}><span>{exact(row.labelValue)} {result.mode === 'D' ? '年' : 'GB/天'}</span><span className="bar-track" aria-hidden="true"><span style={{ width: `${(row.value ?? 0) / max * 100}%` }} /></span><strong>{row.value === null ? result.status === 'unknown' ? '历史未知' : result.status === 'zero' ? '无法推算' : '超出范围' : `${format(row.value)} ${result.mode === 'D' ? 'TB' : '年'}`}</strong></li>)}</ul></section>
+  return <section className="panel sensitivity"><h3>{result.mode === 'D' ? '目标年限敏感性' : '写入负载敏感性'}</h3><p className="hint">仅改变{result.mode === 'D' ? '目标年限，日均写入保持不变' : '自然日日均写入量，其他参数保持不变'}</p><ul>{rows.map((row, index) => <li key={index} className={row.current ? 'current' : ''}><span>{exact(row.labelValue)} {result.mode === 'D' ? '年' : 'GB/天'}</span><span className="bar-track" aria-hidden="true"><span style={{ width: `${(row.value ?? 0) / max * 100}%` }} /></span><strong>{row.value === null ? result.status === 'unknown' ? '历史未知' : result.status === 'zero' ? '无法推算' : '超出范围' : result.mode === 'D' ? `${format(row.value)} TB` : formatTime(row.value)}</strong></li>)}</ul></section>
 }
 
 function Steps({ result }) {
@@ -42,8 +46,8 @@ function Steps({ result }) {
   let rows
   if (result.mode === 'D') rows = [
     ['统一单位', `${n(result.qGB)} GB/天 = ${n(result.qTB)} TB/天`],
-    ['一年写入', `${n(result.qTB)} × 365 = ${n(result.qTB * 365)} TB/年`],
-    ['目标需求', `${n(result.qTB * 365)} × ${n(result.Y)} = ${n(result.required)} TB`],
+    ['一年写入', `${n(result.qTB)} × 365 = ${n(result.annualHostWrites)} TB/年`],
+    ['目标需求', `${n(result.annualHostWrites)} × ${n(result.Y)} = ${n(result.required)} TB`],
     ['候选比较', result.available === null ? result.E === undefined ? '未选候选，不计算余量。' : '候选历史未知，不计算确定余量。' : `${n(result.available)} − ${n(result.required)} = ${n(result.margin)} TB`],
   ]
   else {
@@ -60,7 +64,8 @@ function Steps({ result }) {
 function Budget({ result }) {
   if (result.mode === 'D') return <section className="panel budget"><h3>{result.margin === null ? '写入需求' : '选型余量'}</h3><p className="budget-value">{result.margin === null ? `${format(result.required)} TB` : `${result.margin >= 0 ? '+' : ''}${format(result.margin)} TB`}</p><p className="hint">需求 {exact(result.required)} TB{result.available !== null ? ` · 候选可用 ${exact(result.available)} TB` : ''}</p><p className="hint">{result.margin === null ? result.E === undefined ? '未选候选卡，可展开比较。' : '候选历史未知，不计算确定余量。' : result.margin >= 0 ? '写入量比较满足；' : '写入量比较不足；'}温度、断电保持与掉电条件仍需核对。</p></section>
   const b = result.mode === 'B'
-  return <section className="panel budget"><h3>{b ? 'NAND 写入预算' : '耐久预算'}</h3><p className="budget-value">{result.usedRatio === null ? '历史未知' : `${format(Math.max(1 - result.usedRatio, 0) * 100)}% 剩余`}</p><p className="hint">{b ? `已用 ${exact(result.N)} TB · 总预算 ${exact(result.nandBudget)} TB` : `已写入 ${exact(result.H)} TB · 剩余 ${exact(result.remaining)} TB`}</p>{result.usedRatio !== null ? <div className="budget-track" role="img" aria-label={`预算已用 ${format(result.usedRatio * 100)}%`}><span style={{ width: `${Math.min(result.usedRatio, 1) * 100}%` }} /></div> : null}<p className="hint">{b ? `剩余 ${exact(result.nandRemaining)} TB NAND；未来 WAF ${exact(result.wafFuture)}。条件性工程近似。` : `设定主机预算 ${exact(result.E)} TB。`}</p><p className="hint">写入量差额不是健康度或存活概率。</p></section>
+  const remainingPercent = (b ? result.nandRemaining / result.nandBudget : result.remaining / result.E) * 100
+  return <section className="panel budget"><h3>{b ? 'NAND 写入预算' : '耐久预算'}</h3><p className="budget-value">{result.usedRatio === null ? '历史未知' : `${formatPercent(remainingPercent)} 剩余`}</p><p className="hint">{b ? `已用 ${exact(result.N)} TB · 总预算 ${exact(result.nandBudget)} TB` : `已写入 ${exact(result.H)} TB · 剩余 ${exact(result.remaining)} TB`}</p>{result.usedRatio !== null ? <div className="budget-track" role="img" aria-label={`预算已用 ${formatPercent(result.usedRatio * 100, result.usedComparison)}`}><span style={{ width: `${Math.min(result.usedRatio, 1) * 100}%` }} /></div> : null}<p className="hint">{b ? `剩余 ${exact(result.nandRemaining)} TB NAND；未来 WAF ${exact(result.wafFuture)}。条件性工程近似。` : `设定主机预算 ${exact(result.E)} TB。`}</p><p className="hint">写入量差额不是健康度或存活概率。</p></section>
 }
 
 function UnknownHistory({ result, dirty, onHistory, onSelection }) {
@@ -85,11 +90,11 @@ export default function Analysis({ state, mode, dirty, onHistory, onSelection })
   const result = snapshot?.result
   const unknown = !result && (mode === 'B' ? input.consumption === 'unknown' : mode === 'A' && input.history === 'unknown')
   const status = dirty ? '待重新计算' : result?.status === 'unknown' || unknown ? '历史未知' : result?.status === 'reached' ? '预算已达到' : result?.status === 'zero' ? '零负载' : result ? '假设情景' : '待输入'
-  const value = result ? mode === 'D' ? `${format(result.required)} TB` : result.status === 'unknown' ? '暂不能估算' : result.status === 'reached' ? '预算已达到' : result.years === null ? '—' : `${format(result.years)} 年` : '—'
+  const value = result ? mode === 'D' ? `${format(result.required)} TB` : result.status === 'unknown' ? '暂不能估算' : result.status === 'reached' ? '预算已达到' : formatTime(result.years) : '—'
   const label = result?.status === 'unknown' ? '缺少完整历史，无法推算现有卡剩余时间' : mode === 'D' ? '目标周期主机写入需求' : mode === 'B' ? '条件性主机写入预算时间' : '预计达到设定写入量'
   const chartTitle = mode === 'D' ? '目标周期写入累积' : mode === 'B' ? 'NAND 预算对应的主机写入投影' : '写入量投影'
   return <div className="analysis">
-    <section className="panel result-panel" aria-label="计算结果"><div className="panel-title"><h2>{Object.values(errors).some(Boolean) && !result ? '请检查输入' : '结果'}</h2><span className={`chip ${dirty || result || unknown ? 'warning' : ''}`}>{status}</span></div><div className="result-main"><div><p className={`result-value ${['reached', 'unknown'].includes(result?.status) ? 'word-value' : ''}`}>{value}</p><p className="hint">{label}</p></div><div className="result-facts">{!result ? <><strong>{unknown ? '暂不能推算现有卡时间' : mode === 'D' ? '填写两项参数即可计算' : '还缺少必要输入'}</strong><p>{unknown ? '提供完整历史，或切换选型需求。' : mode === 'D' ? '目标年限 · 日均写入量' : mode === 'B' ? '有效循环容量 / P/E · 消耗来源 · 未来 WAF / 日均写入' : '主机写入预算 · 卡片状态 · 日均写入量'}</p></> : mode === 'D' ? <><Fact label={result.available === null ? '目标年限' : '候选可用预算'} value={result.available === null ? `${exact(result.Y)} 年` : `${exact(result.available)} TB`} /><Fact label={result.margin === null ? '日均写入' : '候选余量'} value={result.margin === null ? `${exact(result.qGB)} GB/天` : `${result.margin >= 0 ? '+' : ''}${format(result.margin)} TB`} /></> : result.status === 'unknown' ? <><Fact label={mode === 'B' ? '总 NAND 磨损预算' : '设定主机总预算'} value={`${exact(mode === 'B' ? result.nandBudget : result.E)} TB${mode === 'B' ? ' NAND' : ''}`} /><Fact label="每年主机写入需求" value={`${exact(result.annualHostWrites)} TB/年`} /></> : <><Fact label={mode === 'B' ? '可写主机预算' : '剩余写入预算'} value={`${exact(result.remaining)} TB`} /><Fact label={mode === 'B' ? 'NAND 预算已用' : '预算已用'} value={`${format(result.usedRatio * 100)}%`} /></>}</div></div>
+    <section className="panel result-panel" aria-label="计算结果"><div className="panel-title"><h2>{Object.values(errors).some(Boolean) && !result ? '请检查输入' : '结果'}</h2><span className={`chip ${dirty || result || unknown ? 'warning' : ''}`}>{status}</span></div><div className="result-main"><div><p className={`result-value ${['reached', 'unknown'].includes(result?.status) ? 'word-value' : ''}`}>{value}</p><p className="hint">{label}</p></div><div className="result-facts">{!result ? <><strong>{unknown ? '暂不能推算现有卡时间' : mode === 'D' ? '填写两项参数即可计算' : '还缺少必要输入'}</strong><p>{unknown ? '提供完整历史，或切换选型需求。' : mode === 'D' ? '目标年限 · 日均写入量' : mode === 'B' ? '有效循环容量 / P/E · 消耗来源 · 未来 WAF / 日均写入' : '主机写入预算 · 卡片状态 · 日均写入量'}</p></> : mode === 'D' ? <><Fact label={result.available === null ? '目标年限' : '候选可用预算'} value={result.available === null ? `${exact(result.Y)} 年` : `${exact(result.available)} TB`} /><Fact label={result.margin === null ? '日均写入' : '候选余量'} value={result.margin === null ? `${exact(result.qGB)} GB/天` : `${result.margin >= 0 ? '+' : ''}${format(result.margin)} TB`} /></> : result.status === 'unknown' ? <><Fact label={mode === 'B' ? '总 NAND 磨损预算' : '设定主机总预算'} value={`${exact(mode === 'B' ? result.nandBudget : result.E)} TB${mode === 'B' ? ' NAND' : ''}`} /><Fact label="每年主机写入需求" value={`${exact(result.annualHostWrites)} TB/年`} /></> : <><Fact label={mode === 'B' ? '可写主机预算' : '剩余写入预算'} value={`${exact(result.remaining)} TB`} /><Fact label={mode === 'B' ? 'NAND 预算已用' : '预算已用'} value={formatPercent(result.usedRatio * 100, result.usedComparison)} /></>}</div></div>
       {dirty ? <p className="notice compact">参数已修改。下方结果、图表与过程仍是上一次成功计算的快照。</p> : null}
       {result?.status === 'zero' ? <p className="notice compact">当前负载为 0，保留写入预算；无法推算时间，不表示无限寿命。</p> : null}
       {result?.status === 'reached' ? <p className="notice compact">已达到或超出设定写入量；这不能判定 SD 卡已损坏。</p> : null}
